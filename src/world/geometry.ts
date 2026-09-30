@@ -125,7 +125,9 @@ function wallRing(out: BuildingMeshes, ring: Vec2[], b: BuildingRecord, st: Buil
 export function appendBuilding(out: BuildingMeshes, b: BuildingRecord): void {
   const st = buildingStyle(b);
   wallRing(out, b.footprint, b, st, true);
-  for (const hole of b.holes ?? []) wallRing(out, hole, b, st, false);
+  // Hole rings are stored CW in (east, north) (shapely orientation), so traversing them in
+  // stored order with the same outward rule makes their walls face into the courtyard.
+  for (const hole of b.holes ?? []) wallRing(out, hole, b, st, true);
 
   const top = b.ground + b.height;
   const contour = b.footprint.map(([x, z]) => new Vector2(x, -z));

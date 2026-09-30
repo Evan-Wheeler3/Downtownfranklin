@@ -36,13 +36,13 @@
         "buildings": 2,
         "places": 0,
         "points": 0,
-        "roads": 2
+        "roads": 1
       },
       "cx": -12,
       "cz": -11,
       "file": "chunks/c_-12_-11.json",
       "id": "c_-12_-11",
-      "maxY": 2.9,
+      "maxY": 2.73,
       "minY": -3.72
     },
     {
@@ -51,7 +51,7 @@
         "buildings": 3,
         "places": 0,
         "points": 0,
-        "roads": 3
+        "roads": 2
       },
       "cx": -12,
       "cz": -10,
@@ -66,13 +66,13 @@
         "buildings": 3,
         "places": 0,
         "points": 0,
-        "roads": 6
+        "roads": 3
       },
       "cx": -12,
       "cz": -9,
       "file": "chunks/c_-12_-9.json",
       "id": "c_-12_-9",
-      "maxY": 8.04,
+      "maxY": 8.03,
       "minY": -1.54
     },
     {
@@ -81,7 +81,7 @@
         "buildings": 2,
         "places": 0,
         "points": 0,
-        "roads": 5
+        "roads": 2
       },
       "cx": -12,
       "cz": -8,
@@ -96,7 +96,7 @@
         "buildings": 2,
         "places": 0,
         "points": 0,
-        "roads": 3
+        "roads": 1
       },
       "cx": -12,
       "cz": -7,
@@ -111,14 +111,14 @@
         "buildings": 4,
         "places": 0,
         "points": 0,
-        "roads": 5
+        "roads": 3
       },
       "cx": -12,
       "cz": -6,
       "file": "chunks/c_-12_-6.json",
       "id": "c_-12_-6",
       "maxY": 9.82,
-      "minY": 5.36
+      "minY": 5.37
     },
     {
       "counts": {
@@ -141,14 +141,14 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": -12,
       "cz": -4,
       "file": "chunks/c_-12_-4.json",
       "id": "c_-12_-4",
       "maxY": 8.34,
-      "minY": 7.9
+      "minY": 7.93
     },
     {
       "counts": {
@@ -163,7 +163,7 @@
       "file": "chunks/c_-12_-3.json",
       "id": "c_-12_-3",
       "maxY": 14.4,
-      "minY": 7.96
+      "minY": 8.21
     },
     {
       "counts": {
@@ -171,14 +171,14 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": -12,
       "cz": -2,
       "file": "chunks/c_-12_-2.json",
       "id": "c_-12_-2",
       "maxY": 9.65,
-      "minY": 3.38
+      "minY": 3.68
     },
     {
       "counts": {
@@ -201,7 +201,7 @@
         "buildings": 1,
         "places": 0,
         "points": 0,
-        "roads": 2
+        "roads": 1
       },
       "cx": -12,
       "cz": 0,
@@ -216,13 +216,13 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 3
+        "roads": 2
       },
       "cx": -12,
       "cz": 1,
       "file": "chunks/c_-12_1.json",
       "id": "c_-12_1",
-      "maxY": 9.33,
+      "maxY": 9.3,
       "minY": 6.96
     },
     {
@@ -261,7 +261,7 @@
         "buildings": 3,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": -12,
       "cz": 4,
@@ -306,13 +306,13 @@
         "buildings": 1,
         "places": 0,
         "points": 0,
-        "roads": 6
+        "roads": 4
       },
       "cx": -12,
       "cz": 7,
       "file": "chunks/c_-12_7.json",
       "id": "c_-12_7",
-      "maxY": 16.58,
+      "maxY": 16.65,
       "minY": 5.38
     },
     {
@@ -321,7 +321,7 @@
         "buildings": 1,
         "places": 0,
         "points": 0,
-        "roads": 6
+        "roads": 3
       },
       "cx": -12,
       "cz": 8,
@@ -336,7 +336,7 @@
         "buildings": 3,
         "places": 0,
         "points": 0,
-        "roads": 5
+        "roads": 3
       },
       "cx": -12,
       "cz": 9,
@@ -351,7 +351,7 @@
         "buildings": 4,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": -12,
       "cz": 10,
@@ -373,7 +373,7 @@
       "file": "chunks/c_-12_11.json",
       "id": "c_-12_11",
       "maxY": 16.36,
-      "minY": 8.99
+      "minY": 9.12
     },
     {
       "counts": {
@@ -381,14 +381,14 @@
         "buildings": 3,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": -11,
       "cz": -12,
       "file": "chunks/c_-11_-12.json",
       "id": "c_-11_-12",
       "maxY": -0.38,
-      "minY": -5.86
+      "minY": -5.84
     },
     {
       "counts": {
@@ -726,7 +726,7 @@
         "buildings": 2,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": -11,
       "cz": 11,
@@ -741,7 +741,7 @@
         "buildings": 2,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": -10,
       "cz": -12,
@@ -1086,7 +1086,7 @@
         "buildings": 3,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": -10,
       "cz": 11,
@@ -1101,7 +1101,7 @@
         "buildings": 1,
         "places": 0,
         "points": 0,
-        "roads": 3
+        "roads": 1
       },
       "cx": -9,
       "cz": -12,
@@ -1446,7 +1446,7 @@
         "buildings": 4,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": -9,
       "cz": 11,
@@ -1461,14 +1461,14 @@
         "buildings": 1,
         "places": 0,
         "points": 0,
-        "roads": 4
+        "roads": 2
       },
       "cx": -8,
       "cz": -12,
       "file": "chunks/c_-8_-12.json",
       "id": "c_-8_-12",
       "maxY": 6.11,
-      "minY": -1.82
+      "minY": -1.81
     },
     {
       "counts": {
@@ -1813,7 +1813,7 @@
       "file": "chunks/c_-8_11.json",
       "id": "c_-8_11",
       "maxY": 17.76,
-      "minY": 12.8
+      "minY": 12.87
     },
     {
       "counts": {
@@ -1821,7 +1821,7 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 4
+        "roads": 1
       },
       "cx": -7,
       "cz": -12,
@@ -2166,13 +2166,13 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 4
+        "roads": 2
       },
       "cx": -7,
       "cz": 11,
       "file": "chunks/c_-7_11.json",
       "id": "c_-7_11",
-      "maxY": 16.55,
+      "maxY": 16.54,
       "minY": 13.68
     },
     {
@@ -2181,7 +2181,7 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 12
+        "roads": 8
       },
       "cx": -6,
       "cz": -12,
@@ -2526,7 +2526,7 @@
         "buildings": 5,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": -6,
       "cz": 11,
@@ -2541,14 +2541,14 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 5
+        "roads": 3
       },
       "cx": -5,
       "cz": -12,
       "file": "chunks/c_-5_-12.json",
       "id": "c_-5_-12",
-      "maxY": 6.24,
-      "minY": 1.43
+      "maxY": 6.17,
+      "minY": 1.49
     },
     {
       "counts": {
@@ -2886,7 +2886,7 @@
         "buildings": 3,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": -5,
       "cz": 11,
@@ -3246,7 +3246,7 @@
         "buildings": 2,
         "places": 0,
         "points": 0,
-        "roads": 4
+        "roads": 2
       },
       "cx": -4,
       "cz": 11,
@@ -3267,8 +3267,8 @@
       "cz": -12,
       "file": "chunks/c_-3_-12.json",
       "id": "c_-3_-12",
-      "maxY": 7.05,
-      "minY": -0.88
+      "maxY": 7.17,
+      "minY": -0.77
     },
     {
       "counts": {
@@ -3606,7 +3606,7 @@
         "buildings": 4,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": -3,
       "cz": 11,
@@ -3621,7 +3621,7 @@
         "buildings": 2,
         "places": 0,
         "points": 0,
-        "roads": 4
+        "roads": 1
       },
       "cx": -2,
       "cz": -12,
@@ -3784,7 +3784,7 @@
       "counts": {
         "areas": 6,
         "buildings": 11,
-        "places": 24,
+        "places": 22,
         "points": 0,
         "roads": 7
       },
@@ -3966,14 +3966,14 @@
         "buildings": 4,
         "places": 0,
         "points": 0,
-        "roads": 3
+        "roads": 1
       },
       "cx": -2,
       "cz": 11,
       "file": "chunks/c_-2_11.json",
       "id": "c_-2_11",
       "maxY": 17.02,
-      "minY": 9.1
+      "minY": 9.13
     },
     {
       "counts": {
@@ -3981,7 +3981,7 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 3
+        "roads": 0
       },
       "cx": -1,
       "cz": -12,
@@ -4174,7 +4174,7 @@
       "counts": {
         "areas": 5,
         "buildings": 7,
-        "places": 33,
+        "places": 35,
         "points": 5,
         "roads": 17
       },
@@ -4341,7 +4341,7 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 2
+        "roads": 1
       },
       "cx": 0,
       "cz": -12,
@@ -4686,13 +4686,13 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 2
+        "roads": 1
       },
       "cx": 0,
       "cz": 11,
       "file": "chunks/c_0_11.json",
       "id": "c_0_11",
-      "maxY": 5.96,
+      "maxY": 5.93,
       "minY": 3.34
     },
     {
@@ -4701,7 +4701,7 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 2
+        "roads": 0
       },
       "cx": 1,
       "cz": -12,
@@ -5052,7 +5052,7 @@
       "cz": 11,
       "file": "chunks/c_1_11.json",
       "id": "c_1_11",
-      "maxY": 5.44,
+      "maxY": 5.38,
       "minY": 0.06
     },
     {
@@ -5061,14 +5061,14 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 3
+        "roads": 1
       },
       "cx": 2,
       "cz": -12,
       "file": "chunks/c_2_-12.json",
       "id": "c_2_-12",
       "maxY": -3.59,
-      "minY": -5.7
+      "minY": -5.6
     },
     {
       "counts": {
@@ -5406,13 +5406,13 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": 2,
       "cz": 11,
       "file": "chunks/c_2_11.json",
       "id": "c_2_11",
-      "maxY": 0.45,
+      "maxY": 0.43,
       "minY": -5.86
     },
     {
@@ -5421,7 +5421,7 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": 3,
       "cz": -12,
@@ -5766,7 +5766,7 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 3
+        "roads": 0
       },
       "cx": 3,
       "cz": 11,
@@ -5781,7 +5781,7 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 2
+        "roads": 1
       },
       "cx": 4,
       "cz": -12,
@@ -6141,14 +6141,14 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": 5,
       "cz": -12,
       "file": "chunks/c_5_-12.json",
       "id": "c_5_-12",
       "maxY": 5.94,
-      "minY": -2.08
+      "minY": -2.04
     },
     {
       "counts": {
@@ -6486,13 +6486,13 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": 5,
       "cz": 11,
       "file": "chunks/c_5_11.json",
       "id": "c_5_11",
-      "maxY": -3.12,
+      "maxY": -3.22,
       "minY": -9.48
     },
     {
@@ -6861,14 +6861,14 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": 7,
       "cz": -12,
       "file": "chunks/c_7_-12.json",
       "id": "c_7_-12",
       "maxY": 11.43,
-      "minY": 6.48
+      "minY": 6.49
     },
     {
       "counts": {
@@ -7228,7 +7228,7 @@
       "file": "chunks/c_8_-12.json",
       "id": "c_8_-12",
       "maxY": 7.12,
-      "minY": 2.53
+      "minY": 2.56
     },
     {
       "counts": {
@@ -7566,14 +7566,14 @@
         "buildings": 2,
         "places": 0,
         "points": 0,
-        "roads": 4
+        "roads": 3
       },
       "cx": 8,
       "cz": 11,
       "file": "chunks/c_8_11.json",
       "id": "c_8_11",
       "maxY": 8.55,
-      "minY": -0.75
+      "minY": -0.74
     },
     {
       "counts": {
@@ -7581,14 +7581,14 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 1
+        "roads": 0
       },
       "cx": 9,
       "cz": -12,
       "file": "chunks/c_9_-12.json",
       "id": "c_9_-12",
       "maxY": 8.44,
-      "minY": 3.58
+      "minY": 3.59
     },
     {
       "counts": {
@@ -7602,7 +7602,7 @@
       "cz": -11,
       "file": "chunks/c_9_-11.json",
       "id": "c_9_-11",
-      "maxY": 20.4,
+      "maxY": 20.38,
       "minY": 3.96
     },
     {
@@ -7611,7 +7611,7 @@
         "buildings": 6,
         "places": 0,
         "points": 0,
-        "roads": 5
+        "roads": 3
       },
       "cx": 9,
       "cz": -10,
@@ -7626,7 +7626,7 @@
         "buildings": 6,
         "places": 0,
         "points": 0,
-        "roads": 4
+        "roads": 2
       },
       "cx": 9,
       "cz": -9,
@@ -7648,7 +7648,7 @@
       "file": "chunks/c_9_-8.json",
       "id": "c_9_-8",
       "maxY": 13.49,
-      "minY": 7.53
+      "minY": 7.57
     },
     {
       "counts": {
@@ -7656,7 +7656,7 @@
         "buildings": 4,
         "places": 0,
         "points": 0,
-        "roads": 7
+        "roads": 6
       },
       "cx": 9,
       "cz": -7,
@@ -7671,7 +7671,7 @@
         "buildings": 7,
         "places": 0,
         "points": 0,
-        "roads": 6
+        "roads": 4
       },
       "cx": 9,
       "cz": -6,
@@ -7686,7 +7686,7 @@
         "buildings": 3,
         "places": 0,
         "points": 3,
-        "roads": 15
+        "roads": 11
       },
       "cx": 9,
       "cz": -5,
@@ -7701,13 +7701,13 @@
         "buildings": 2,
         "places": 0,
         "points": 1,
-        "roads": 10
+        "roads": 5
       },
       "cx": 9,
       "cz": -4,
       "file": "chunks/c_9_-4.json",
       "id": "c_9_-4",
-      "maxY": 12.49,
+      "maxY": 12.48,
       "minY": -0.56
     },
     {
@@ -7716,7 +7716,7 @@
         "buildings": 2,
         "places": 0,
         "points": 0,
-        "roads": 10
+        "roads": 6
       },
       "cx": 9,
       "cz": -3,
@@ -7731,13 +7731,13 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 4
+        "roads": 3
       },
       "cx": 9,
       "cz": -2,
       "file": "chunks/c_9_-2.json",
       "id": "c_9_-2",
-      "maxY": 9.09,
+      "maxY": 9.06,
       "minY": 5.57
     },
     {
@@ -7752,7 +7752,7 @@
       "cz": -1,
       "file": "chunks/c_9_-1.json",
       "id": "c_9_-1",
-      "maxY": 9.9,
+      "maxY": 9.89,
       "minY": 6.77
     },
     {
@@ -7761,7 +7761,7 @@
         "buildings": 1,
         "places": 0,
         "points": 0,
-        "roads": 4
+        "roads": 2
       },
       "cx": 9,
       "cz": 0,
@@ -7791,13 +7791,13 @@
         "buildings": 9,
         "places": 0,
         "points": 0,
-        "roads": 2
+        "roads": 1
       },
       "cx": 9,
       "cz": 2,
       "file": "chunks/c_9_2.json",
       "id": "c_9_2",
-      "maxY": 10.89,
+      "maxY": 10.66,
       "minY": 1.64
     },
     {
@@ -7806,7 +7806,7 @@
         "buildings": 9,
         "places": 0,
         "points": 0,
-        "roads": 2
+        "roads": 0
       },
       "cx": 9,
       "cz": 3,
@@ -7836,7 +7836,7 @@
         "buildings": 0,
         "places": 0,
         "points": 2,
-        "roads": 12
+        "roads": 7
       },
       "cx": 9,
       "cz": 5,
@@ -7866,7 +7866,7 @@
         "buildings": 9,
         "places": 0,
         "points": 0,
-        "roads": 4
+        "roads": 3
       },
       "cx": 9,
       "cz": 7,
@@ -7881,7 +7881,7 @@
         "buildings": 12,
         "places": 0,
         "points": 0,
-        "roads": 7
+        "roads": 5
       },
       "cx": 9,
       "cz": 8,
@@ -7896,13 +7896,13 @@
         "buildings": 13,
         "places": 0,
         "points": 0,
-        "roads": 2
+        "roads": 1
       },
       "cx": 9,
       "cz": 9,
       "file": "chunks/c_9_9.json",
       "id": "c_9_9",
-      "maxY": 15.85,
+      "maxY": 15.81,
       "minY": 8.89
     },
     {
@@ -7926,14 +7926,14 @@
         "buildings": 0,
         "places": 0,
         "points": 0,
-        "roads": 4
+        "roads": 2
       },
       "cx": 9,
       "cz": 11,
       "file": "chunks/c_9_11.json",
       "id": "c_9_11",
       "maxY": 4.41,
-      "minY": 1.94
+      "minY": 1.98
     }
   ],
   "controlPoints": [
@@ -7980,7 +7980,7 @@
       665.72
     ]
   ],
-  "generatedUtc": "2026-09-30T21:51:05+00:00",
+  "generatedUtc": "2026-09-30T22:07:09+00:00",
   "origin": {
     "elevationDatum": 196.0,
     "lat": 35.925,
@@ -8010,7 +8010,7 @@
     "graphNodes": 1869,
     "roads": {
       "edges_skipped_missing_connector": 226,
-      "ribbons": 2747,
+      "ribbons": 2635,
       "sidewalks_from_facades": 207
     }
   }

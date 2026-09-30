@@ -151,6 +151,30 @@ export class Game {
     return { street: best.name, streetDist: best.name ? best.d : undefined, place: bestPlace.name, placeDist: bestPlace.name ? bestPlace.d : undefined };
   }
 
+  /** Is the player inside any building footprint, and how far is the nearest facade? */
+  facadeProbe(): { inside: boolean; facadeDist: number } {
+    const px = this.player.pos.x;
+    const pz = this.player.pos.z;
+    let inside = false;
+    let best = Infinity;
+    const s = this.world.manifest.chunkSize;
+    for (const c of this.world.residentChunks()) {
+      if (Math.abs((c.data.cx + 0.5) * s - px) > s * 1.5 || Math.abs((c.data.cz + 0.5) * s - pz) > s * 1.5) continue;
+      for (const b of c.data.buildings) {
+        const r = b.footprint;
+        let wn = false;
+        for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+          const [xi, zi] = r[i]!;
+          const [xj, zj] = r[j]!;
+          if (zi > pz !== zj > pz && px < ((xj - xi) * (pz - zi)) / (zj - zi) + xi) wn = !wn;
+          best = Math.min(best, segDist(px, pz, xi, zi, xj, zj));
+        }
+        if (wn) inside = true;
+      }
+    }
+    return { inside, facadeDist: best };
+  }
+
   private updateHud(): void {
     const p = this.player.pos;
     const geo = this.proj.toGeo(p.x, p.z);

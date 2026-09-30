@@ -64,3 +64,24 @@ def test_world_manifest_bounds_cover_core():
     b = m["bounds"]
     assert b["minX"] < min(xs) and b["maxX"] > max(xs) and b["minZ"] < min(zs) and b["maxZ"] > max(zs)
     assert m["spawn"] and math.isfinite(m["spawn"]["yawDeg"])
+
+
+def test_address_lookup_requires_matching_direction_and_type():
+    pt = {"coordinates": [-86.87, 35.924]}
+    feats = [
+        {"geometry": pt, "properties": {"number": "137", "street": "4TH Avenue North"}},
+        {"geometry": pt, "properties": {"number": "10", "street": "REYNOLDS Drive"}},
+        {"geometry": pt, "properties": {"number": "339", "street": "MAIN Street"}},
+        {"geometry": pt, "properties": {"number": "5", "street": "3RD Avenue South"}},
+    ]
+    idx = AddressIndex(feats)
+    assert idx.lookup("137 4th Ave S") == []  # wrong directional: never relocate across streets
+    assert len(idx.lookup("137 4th Ave N")) == 1
+    assert idx.lookup("10 Reynolds Rd") == []  # wrong street type
+    assert len(idx.lookup("339 Main St  # 2")) == 1  # suite marker stripped
+    assert len(idx.lookup("5 Third Ave S")) == 1  # ordinal words normalised
+
+
+def test_parse_freeform_suites():
+    assert _parse_freeform("339 Main St  # 2") == ("339", "MAIN ST")
+    assert _parse_freeform("100 E Main St, Suite 4") == ("100", "E MAIN ST")

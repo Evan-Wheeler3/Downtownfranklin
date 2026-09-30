@@ -14,9 +14,10 @@ _Last updated: 2026-09-30 (session 1)._ Read this first. Then ROADMAP.md → "Ne
   LOD rings, spawn on Main Street facing the Franklin Theatre, HUD (lat/lon, street, perf), attribution.
 
 ## Evidence (session 1)
-- Unit: 19 vitest (projection parity < 1 cm vs PROJ, streaming policy, winding/normals, world data
-  contract, Rapier collision incl. wall block + kerb step) · 8 pytest (pipeline transforms, report, manifest).
-- e2e (Playwright, WebGL2/SwiftShader): boot on Main Street grounded; walking; buildings block;
+- Unit: 24 vitest (projection parity < 1 cm vs PROJ, streaming policy, winding/normals, world data
+  contract, Rapier collision incl. wall block + kerb step) · 10 pytest (pipeline transforms incl. address matching, report, manifest).
+- e2e (Playwright, WebGL2/SwiftShader): boot on Main Street grounded; walking; buildings block (player
+  ends < 0.6 m from a facade, never inside a footprint);
   far teleport streams in/out with physics ≤ 16 chunks — 4/4 pass.
 - Validation report: 0 errors; drivable network 99.4 % in one component; places: 1,264 address-consistent,
   114 relocated to NAD, 170 unmatched, 80 without address.
@@ -35,22 +36,32 @@ Session-1 major Gauntlet (`scripts/perf.mjs`, SwiftShader WebGL2, 1280×720, `qu
 | aerial 60 m | 286 | 192 k | 184 | 43 ms |
 
 Frame times (~600 ms) are SwiftShader software rendering, not representative.
-After moving chunk builds to workers (M3.2, 3 workers): worker build max 33 ms (off-thread);
-**main-thread apply max 29.5 ms** — still a hitch; likely Rapier trimesh collider creation /
-GPU upload on first frames. Next step: split apply timing (GPU vs collider) and budget colliders.
+After moving chunk builds to workers (M3.2, 3 workers): worker build max 22–34 ms (off-thread);
+main-thread apply max was 29.5 ms, traced to terrain trimesh colliders (5–12 ms each) → switched to
+heightfields (0.3 ms): **main-thread apply max 7.8 ms**. Remaining: first-ever physics step ~100 ms
+one-off (WASM warm-up), GPU upload cost unmeasured (needs real GPU).
 
 Geo verification (`python -m franklin_pipeline.geo_verify`): 2,771/2,771 buildings present, 0
 duplicates, centroid Δ max 9.5 mm, area Δ p99 0.12 %; 1,070 core road ribbons, max vertex offset
 from source centreline 6.9 mm; 8/8 heroes resolved; spawn not inside a building. Overlay map:
 `artifacts/geo_verify.svg`.
 
+## Adversarial review (session 1)
+Independent reviewer subagent found 11 issues; all fixed and covered by tests (mutation-checked where
+applicable): wrong-street address relocation, inverted courtyard walls, stale-LOD result stripping
+collision, collider/teleport query staleness, ground ray hitting the player capsule, suite regex,
+worker-crash stall + no retry backoff, in-flight cap bypass, weak e2e/unit assertions, Gauntlet leaking
+the preview server; minor: duplicate-removal loop, uncounted passthrough drops, DEM out-of-raster clamping.
+Open from review: LOD0/LOD1 terrain T-junction cracks at the 320 m ring (add skirts, M3).
+
 ## Known issues / debt
-- Chunk mesh building runs on the main thread (12–37 ms per chunk) → hitches while streaming (M3.2).
+- Terrain LOD seams (T-junctions) at the detail ring; no skirts yet.
 - Road/sidewalk layering relies on polygon offset; intersections are overlapping ribbons.
 - Place label shows nearest place point (can pick mis-geocoded records; 170 unmatched addresses).
 - `generatedUtc` changes on every pipeline run (manifest only; chunk output is deterministic — checked by Gauntlet major).
 - Rendering never profiled on a real GPU (none in this environment).
 
 ## Next
-M3 — Street-level fidelity + geo verification (see ROADMAP.md). Start with M3.2 (worker chunk
-building, measured) and M3.1 (geo-verify report), then kerbs, crossings, street furniture.
+M3 — Street-level fidelity (see ROADMAP.md). Done in session 1: M3.1 geo-verify report (in Gauntlet
+major) and M3.2 worker chunk building + heightfield collision. Next: terrain skirts, kerbs as geometry
+(M3.3), crosswalks/markings (M3.4), street furniture from point data (M3.5), pitched roofs, theatre marquee.

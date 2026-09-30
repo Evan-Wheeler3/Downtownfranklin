@@ -26,6 +26,7 @@ export function installDebugApi(game: Game): void {
         perf: game.perf.summary(),
         render: { drawCalls: game.ctx.renderer.info.render.drawCalls, triangles: game.ctx.renderer.info.render.triangles },
         locate: game.locate(),
+        probe: game.facadeProbe(),
       };
     },
     teleport(x: number, z: number, yawDeg?: number) {

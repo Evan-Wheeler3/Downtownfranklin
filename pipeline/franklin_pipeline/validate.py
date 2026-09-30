@@ -78,8 +78,11 @@ def validate_buildings(feats: list[dict], report: dict) -> list[dict]:
             iou = inter / gi.union(geoms_m[j]).area
             if iou >= DUPLICATE_IOU:
                 score = lambda k: len(kept[k]["properties"])
-                drop.add(j if score(i) >= score(j) else i)
+                loser = j if score(i) >= score(j) else i
+                drop.add(loser)
                 r["dropped_duplicate"] += 1
+                if loser == i:
+                    break  # i is gone; don't let it knock out further buildings
             else:
                 overlaps += 1
     r["overlapping_pairs_kept"] = overlaps
@@ -144,14 +147,21 @@ _TYPES = {"STREET", "AVENUE", "ROAD", "DRIVE", "LANE", "BOULEVARD", "COURT", "PL
 ADDRESS_CONSISTENT_M = 45.0
 
 
-def _street_key(s: str) -> tuple[str, frozenset]:
-    toks = [_ABBR.get(t, t) for t in re.sub(r"[^A-Z0-9 ]", " ", s.upper()).split()]
+_ORDINALS = {"FIRST": "1ST", "SECOND": "2ND", "THIRD": "3RD", "FOURTH": "4TH", "FIFTH": "5TH", "SIXTH": "6TH",
+             "SEVENTH": "7TH", "EIGHTH": "8TH", "NINTH": "9TH", "TENTH": "10TH", "ELEVENTH": "11TH"}
+
+
+def _street_key(s: str) -> tuple[str, frozenset, str | None]:
+    """(core name, directionals, street type) with abbreviations and ordinals normalised."""
+    toks = [_ORDINALS.get(t, t) for t in (_ABBR.get(t, t) for t in re.sub(r"[^A-Z0-9 ]", " ", s.upper()).split())]
     core = " ".join(t for t in toks if t not in _DIRS and t not in _TYPES)
-    return core, frozenset(t for t in toks if t in _DIRS)
+    types = [t for t in toks if t in _TYPES]
+    return core, frozenset(t for t in toks if t in _DIRS), types[-1] if types else None
 
 
 def _parse_freeform(addr: str) -> tuple[str, str] | None:
-    m = re.match(r"^\s*(\d+[A-Z]?)\s+(.+?)(?:\s+(?:STE|SUITE|UNIT|APT|#)\b.*)?$", addr.upper())
+    a = re.sub(r"(?:\s+|,\s*)(?:STE|SUITE|UNIT|APT|BLDG)\b.*$|\s*#.*$", "", addr.upper())
+    m = re.match(r"^\s*(\d+[A-Z]?)\s+(.+?)\s*$", a)
     return (m.group(1), m.group(2)) if m else None
 
 
@@ -159,22 +169,23 @@ class AddressIndex:
     """NAD address points keyed by (house number, street core name)."""
 
     def __init__(self, feats: list[dict]):
-        self.idx: dict[tuple[str, str], list[tuple[frozenset, tuple[float, float]]]] = defaultdict(list)
+        self.idx: dict[tuple[str, str], list[tuple[frozenset, str | None, tuple[float, float]]]] = defaultdict(list)
         for f in feats:
             p = f["properties"]
             if not p.get("number") or not p.get("street"):
                 continue
-            core, dirs = _street_key(p["street"])
-            self.idx[(p["number"].upper(), core)].append((dirs, _to_utm(*f["geometry"]["coordinates"][:2])))
+            core, dirs, typ = _street_key(p["street"])
+            self.idx[(p["number"].upper(), core)].append((dirs, typ, _to_utm(*f["geometry"]["coordinates"][:2])))
 
     def lookup(self, freeform: str) -> list[tuple[float, float]]:
+        """NAD points for the same number and street. A directional or street type given in the
+        query must agree (4th Ave S never matches 4th Ave N; Reynolds Rd never matches Reynolds Dr)."""
         parsed = _parse_freeform(freeform)
         if not parsed:
             return []
-        core, dirs = _street_key(parsed[1])
-        cands = self.idx.get((parsed[0], core), [])
-        exact = [xy for d, xy in cands if not dirs or d == dirs or dirs <= d]
-        return exact or [xy for _, xy in cands]
+        core, dirs, typ = _street_key(parsed[1])
+        return [xy for d, t, xy in self.idx.get((parsed[0], core), [])
+                if (not dirs or d == dirs) and (typ is None or t is None or t == typ)]
 
 
 def validate_places(feats: list[dict], buildings: list[dict], addresses: list[dict], report: dict) -> list[dict]:
@@ -243,9 +254,10 @@ def main() -> int:
     pl = validate_places(read_fc(NORMALIZED / "places.geojson"), b, read_fc(NORMALIZED / "addresses.geojson"), report)
     passthrough = ["addresses", "water", "land_use", "land_cover", "infrastructure"]
     for name in passthrough:
-        feats = [f for f in read_fc(NORMALIZED / f"{name}.geojson") if shape(f["geometry"]).is_valid]
+        src = read_fc(NORMALIZED / f"{name}.geojson")
+        feats = [f for f in src if shape(f["geometry"]).is_valid]
         write_fc(VALIDATED / f"{name}.geojson", feats)
-        report[name] = {"output": len(feats)}
+        report[name] = {"input": len(src), "output": len(feats), "dropped_invalid": len(src) - len(feats)}
     write_fc(VALIDATED / "buildings.geojson", b)
     write_fc(VALIDATED / "road_segments.geojson", segs)
     write_fc(VALIDATED / "road_connectors.geojson", conns)

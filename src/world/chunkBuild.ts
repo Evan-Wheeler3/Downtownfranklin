@@ -22,7 +22,7 @@ export interface BuiltChunk {
   /** Decoded terrain heights (metres rel. datum), row-major n*n. */
   heights: Float32Array;
   meshes: Partial<Record<MeshName, MeshArrays>>;
-  /** Static collision soups (only for LOD0). References the same buffers as meshes where possible. */
+  /** Static building collision soups (only for LOD0); shares buffers with the meshes. */
   collision: { positions: Float32Array; indices: Uint32Array }[];
   buildMs: number;
 }
@@ -46,7 +46,7 @@ export function buildChunk(data: ChunkData, lod: 0 | 1): BuiltChunk {
 
   const ta = terrainMeshArrays(terrain, lod === 0 ? 1 : 4);
   meshes.terrain = { positions: ta.positions, normals: ta.normals, uvs: ta.uvs, indices: ta.indices };
-  if (lod === 0) collision.push({ positions: ta.positions, indices: ta.indices });
+  // Terrain collision is a Rapier heightfield built from `heights` (cheap); only buildings ship as trimeshes.
 
   const bm = newBuildingMeshes();
   for (const b of data.buildings) appendBuilding(bm, b);

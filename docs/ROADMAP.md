@@ -8,7 +8,7 @@ Vertical milestones; each must leave the game runnable and pass its acceptance c
 | M0 | Foundation | ✅ done | repo, docs, stack decision, skills/agents, Gauntlet, app scaffold, CI-able tests |
 | M1 | Geographic data pipeline | ✅ done | Overture + USGS fetch, normalize, validate (incl. NAD address check), game coords, chunks, road graph, business seeds, source ledger |
 | M2 | Geographic world slice | ✅ done (perf follow-ups in M3) | streamed downtown from data, first-person walking, Rapier collision (terrain, buildings, kerbs), LOD rings, spawn on Main St, HUD with lat/lon + street, e2e tests |
-| **M3** | **Street-level fidelity + geo verification** | ⏭ next | see below |
+| **M3** | **Street-level fidelity + geo verification** | 🟡 in progress (M3.1, M3.2 done) | see below |
 | M4 | Time, sky and weather core | planned | sim clock/date, sun position for Franklin lat/lon, day/night lighting, weather state machine (rain/overcast/clear), street lights at night; all systems subscribe to the clock |
 | M5 | Business framework + Tier-1 interiors | planned | business registry from `businesses.json` + authored overrides, category→interaction profiles, FICTIONAL default hours, open/closed signage, enter/exit portals, streamable Tier-1 interior kit |
 | M6 | Economy + inventory + save v1 | planned | wallet, prices, transactions, inventory, buy/order/eat/drink, versioned save with migrations (player, money, inventory, time) |
@@ -24,9 +24,9 @@ Vertical milestones; each must leave the game runnable and pass its acceptance c
 | M16+ | Deeper simulation, polish, release readiness | planned | balancing, accessibility, settings, onboarding, packaging |
 
 ## M3 — Street-level fidelity + geo verification (next)
-1. **Geo-verification report** (`scripts/geo_verify.py` or pipeline stage): overlay of generated chunk geometry vs validated source (footprint area/centroid deltas, road polyline deltas, HERO presence), output an SVG/PNG map + JSON to `artifacts/`; wire into Gauntlet `major`.
-2. **Worker chunk building**: move `populate()` geometry generation into a Web Worker (transferable typed arrays) to remove the 12–37 ms main-thread hitches; measure before/after with `scripts/perf.mjs`.
-3. **Kerbs as geometry**: raised sidewalk edge (0.15 m) along facade-derived sidewalks; collider included; verify autostep in e2e.
+1. ✅ **Geo-verification report** (`scripts/geo_verify.py` or pipeline stage): overlay of generated chunk geometry vs validated source (footprint area/centroid deltas, road polyline deltas, HERO presence), output an SVG/PNG map + JSON to `artifacts/`; wire into Gauntlet `major`.
+2. ✅ **Worker chunk building** (+ heightfield terrain collision; apply max 29.5 → 7.8 ms): move `populate()` geometry generation into a Web Worker (transferable typed arrays) to remove the 12–37 ms main-thread hitches; measure before/after with `scripts/perf.mjs`.
+3. **Terrain skirts** at LOD seams; **kerbs as geometry**: raised sidewalk edge (0.15 m) along facade-derived sidewalks; collider included; verify autostep in e2e.
 4. **Street markings & crossings**: centre lines from one-way/class, crosswalks at `crossing` points, stop bars at `traffic_signals`.
 5. **Street furniture from point data** (signals, bus stops, bollards) as instanced meshes; trees from land cover (INFERRED placement) only where sourced.
 6. **Pitched roofs** where `roof_shape` is known; parapets for commercial core buildings.
@@ -34,7 +34,6 @@ Vertical milestones; each must leave the game runnable and pass its acceptance c
 8. Resolve `pending_verification` items where evidence allows (courthouse footprint).
 
 ## Known debt
-- Main-thread chunk builds (hitches) → M3.2.
 - 5 MB JS bundle (three/webgpu + inlined Rapier WASM) → code-split in M14.
 - Sidewalk/road overlap at intersections is a painter's-order hack (polygon offset) → proper junction polygons in M3/M13.
 - Rendering FPS never measured on real GPU hardware (environment has none).

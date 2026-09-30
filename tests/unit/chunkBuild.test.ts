@@ -11,7 +11,7 @@ describe('buildChunk (worker payload)', () => {
     expect(b.meshes.terrain).toBeDefined();
     expect(b.meshes['buildings.upper']).toBeDefined();
     expect(b.meshes.roads).toBeDefined();
-    expect(b.collision.length).toBeGreaterThanOrEqual(2);
+    expect(b.collision.length).toBeGreaterThanOrEqual(1); // buildings; terrain uses a heightfield
     expect(b.heights.length).toBe(data.terrain.n ** 2);
     const t = b.meshes.terrain!;
     expect(t.normals.length).toBe(t.positions.length);

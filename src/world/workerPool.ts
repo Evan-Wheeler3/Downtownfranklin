@@ -22,8 +22,19 @@ export class ChunkWorkerPool {
   constructor(size = Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 4) - 1))) {
     for (let i = 0; i < size; i++) {
       const w = new Worker(new URL('./chunkWorker.ts', import.meta.url), { type: 'module' });
+      const index = this.workers.length;
       w.onmessage = (ev) => this.onMessage(ev.data);
-      w.onerror = (ev) => console.error('chunk worker error', ev.message);
+      // A crashed/unloadable worker must not strand its requests (they would count as
+      // in-flight forever and stall streaming): reject them so callers can retry.
+      w.onerror = (ev) => {
+        console.error('chunk worker error', ev.message);
+        for (const [id, p] of this.pending) {
+          if (p.worker !== index) continue;
+          this.pending.delete(id);
+          this.workers[index]!.busy--;
+          p.reject(new Error(`chunk worker ${index} failed: ${ev.message}`));
+        }
+      };
       this.workers.push({ w, busy: 0 });
     }
   }

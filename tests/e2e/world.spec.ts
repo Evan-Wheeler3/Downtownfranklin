@@ -18,6 +18,7 @@ type Api = {
     perf: { p50: number; p95: number; cpuAvg: number };
     render: { drawCalls: number; triangles: number };
     locate: { street?: string; place?: string };
+    probe: { inside: boolean; facadeDist: number };
   };
   teleport(x: number, z: number, yawDeg?: number): void;
   look(yawDeg: number, pitchDeg?: number): void;
@@ -88,16 +89,24 @@ test('walking moves the player along the street and stays grounded', async ({ pa
 test('buildings block movement', async ({ page }) => {
   await boot(page);
   const s0 = await state(page);
-  // Walk from the spawn toward the theatre frontage; it must stop at the facade.
+  expect(s0.probe.inside).toBe(false);
+  // Sprint from the spawn toward the theatre frontage until we stop getting closer.
   await page.evaluate(() => window.__franklin.move({ forward: 1, sprint: true }));
-  await page.waitForTimeout(25_000);
+  // Stop once the player has stopped moving (blocked) for several consecutive samples.
+  let prev = s0.pos;
+  let stalls = 0;
+  for (let i = 0; i < 90 && stalls < 4; i++) {
+    await page.waitForTimeout(2000);
+    const p = (await state(page)).pos;
+    stalls = Math.hypot(p.x - prev.x, p.z - prev.z) < 0.02 ? stalls + 1 : 0;
+    prev = p;
+  }
   await page.evaluate(() => window.__franklin.move(null));
   const s1 = await state(page);
-  const moved = Math.hypot(s1.pos.x - s0.pos.x, s1.pos.z - s0.pos.z);
-  // Spawn is across the street (~7-20 m from the facade); sprinting 25 s would cover
-  // far more than that if walls did not block.
-  expect(moved).toBeGreaterThan(3);
-  expect(moved).toBeLessThan(30);
+  // We reached the wall (capsule radius 0.3 m + controller offset) and did not pass through it.
+  expect(s1.probe.inside).toBe(false);
+  expect(s1.probe.facadeDist).toBeLessThan(0.6);
+  expect(Math.hypot(s1.pos.x - s0.pos.x, s1.pos.z - s0.pos.z)).toBeGreaterThan(3);
 });
 
 test('teleporting far away streams new chunks in and old ones out', async ({ page }) => {
@@ -107,7 +116,7 @@ test('teleporting far away streams new chunks in and old ones out', async ({ pag
   await page.waitForFunction(() => window.__franklin.settled && window.__franklin.ready, null, { timeout: 150_000 });
   const after = await state(page);
   expect(Math.hypot(after.pos.x - 900, after.pos.z + 900)).toBeLessThan(2);
-  expect(after.grounded || after.pos.y > -50).toBe(true);
+  await page.waitForFunction(() => window.__franklin.state().grounded, null, { timeout: 60_000 });
   expect(after.world.resident).toBeGreaterThan(10);
   // physics only near the player
   expect(after.world.physicsChunks).toBeLessThanOrEqual(16);

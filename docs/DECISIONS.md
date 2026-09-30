@@ -54,3 +54,15 @@ Format: ID · date · decision · context/alternatives · consequences. Newest l
 
 ### D-016 · 2026-09-30 · Automation surface `window.__franklin`
 - Stable debug API for Playwright (state, teleport, look, scripted move). Keeps e2e tests independent of DOM/pointer-lock.
+
+### D-017 · 2026-09-30 · Terrain collision → Rapier heightfield (supersedes D-010)
+- Measured: 8,192-tri terrain trimesh collider costs 5–12 ms to build on the main thread vs 0.3 ms for a heightfield; it was the main source of the 29.5 ms apply spike. Layout (transpose to column-major, centred) is locked by an asymmetric raycast test. Buildings stay trimeshes (~0.2 ms each).
+
+### D-018 · 2026-09-30 · Chunk geometry built in Web Workers
+- `chunkWorker.ts` fetches + builds typed arrays (transferred, zero-copy); main thread only creates buffers/colliders under a 4 ms/frame budget. Stale results (unloaded chunk, superseded LOD) are dropped; resident LOD that matches the wanted LOD cancels in-flight rebuilds; failures back off exponentially; worker crashes reject their requests. Main-thread fallback path uses the same `buildChunk`.
+
+### D-019 · 2026-09-30 · Physics query consistency
+- Rapier only updates its broad phase in `step()`. `PhysicsWorld.sync()` performs a negligible step when colliders changed, before ray casts and character-controller queries; teleports propagate body→collider immediately. Ground rays exclude kinematic/dynamic bodies (never hit the player capsule).
+
+### D-020 · 2026-09-30 · Address matching must agree on directional and street type
+- Adversarial review found "137 4th Ave S" relocated 335 m to "137 4th Ave N". Matching now requires equal directionals and street types when given; ordinals ("Third") and suite markers ("# 2") normalised. Result: 1,279 consistent / 112 relocated / 157 unmatched.

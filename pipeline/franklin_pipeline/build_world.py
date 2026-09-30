@@ -68,6 +68,7 @@ class Dem:
         col, row = self.inv * (np.asarray(e), np.asarray(n))
         col, row = np.asarray(col) - 0.5, np.asarray(row) - 0.5
         h, w = self.data.shape
+        outside = (col < 0) | (row < 0) | (col > w - 1) | (row > h - 1)
         c0 = np.clip(np.floor(col).astype(int), 0, w - 2)
         r0 = np.clip(np.floor(row).astype(int), 0, h - 2)
         fc = np.clip(col - c0, 0, 1)
@@ -76,8 +77,9 @@ class Dem:
         v = (d[r0, c0] * (1 - fc) * (1 - fr) + d[r0, c0 + 1] * fc * (1 - fr)
              + d[r0 + 1, c0] * (1 - fc) * fr + d[r0 + 1, c0 + 1] * fc * fr)
         if self.nodata is not None:
-            v = np.where(np.isclose(v, self.nodata) | (v < -1000), np.nan, v)
-        return v
+            corners = np.stack([d[r0, c0], d[r0, c0 + 1], d[r0 + 1, c0], d[r0 + 1, c0 + 1]])
+            v = np.where(np.isclose(corners, self.nodata).any(axis=0) | (corners < -1000).any(axis=0), np.nan, v)
+        return np.where(outside, np.nan, v)
 
 
 def _r(v, nd=2):

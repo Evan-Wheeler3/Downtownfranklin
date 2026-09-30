@@ -66,6 +66,9 @@ export class World {
   /** id -> LOD currently being built for it. */
   private inflight = new Map<string, 0 | 1>();
   private ready: { id: string; lod: 0 | 1; result: ChunkResult }[] = [];
+  /** Exponential backoff for chunks whose fetch/build failed: id -> earliest retry time. */
+  private failures = new Map<string, number>();
+  private failCounts = new Map<string, number>();
   private readonly maxInflight: number;
   private readonly materials: Record<string, THREE.Material>;
   private readonly pool: ChunkWorkerPool | null;
@@ -136,14 +139,19 @@ export class World {
         this.unload(id);
         continue;
       }
-      // Physics needs LOD0 collision arrays.
-      const needLod: 0 | 1 = w.physics ? 0 : w.lod;
-      if (needLod !== c.lod) this.request(id, needLod);
-      else if (w.physics !== c.physics) this.setPhysics(c, w.physics);
+      const needLod = World.neededLod(w);
+      if (needLod !== c.lod) {
+        if (this.inflight.size < this.maxInflight) this.request(id, needLod);
+      } else {
+        // Resident LOD is what we want: cancel any in-flight rebuild to another LOD, so a late
+        // result can never replace (and strip collision from) the current chunk.
+        this.inflight.delete(id);
+        if (w.physics !== c.physics) this.setPhysics(c, w.physics);
+      }
     }
     for (const w of wants) {
       if (this.inflight.size >= this.maxInflight) break;
-      if (!this.resident.has(w.id)) this.request(w.id, w.physics ? 0 : w.lod);
+      if (!this.resident.has(w.id)) this.request(w.id, World.neededLod(w));
     }
 
     // Apply finished builds nearest-first within the frame budget (always at least one).
@@ -153,7 +161,7 @@ export class World {
       while (this.ready.length && (performance.now() - t0 < budgetMs)) {
         const item = this.ready.shift()!;
         const w = wanted.get(item.id);
-        if (!w) {
+        if (!w || World.neededLod(w) !== item.lod) {
           this.stats.staleResults++;
           continue;
         }
@@ -176,17 +184,24 @@ export class World {
     this.stats.buildingsResident = b;
   }
 
+  /** Physics needs LOD0 collision arrays, so a physics chunk is always built at LOD0. */
+  static neededLod(w: { lod: 0 | 1; physics: boolean }): 0 | 1 {
+    return w.physics ? 0 : w.lod;
+  }
+
   /** Whether every chunk the policy wants is resident at the wanted LOD/physics state. */
   get settled(): boolean {
     const wants = this.policy.evaluate(this.focus.x, this.focus.z, this.resident);
     return wants.every((w) => {
       const c = this.resident.get(w.id);
-      return c && c.lod === (w.physics ? 0 : w.lod) && c.physics === w.physics;
+      return c && c.lod === World.neededLod(w) && c.physics === w.physics;
     });
   }
 
   private request(id: string, lod: 0 | 1): void {
     if (this.inflight.get(id) === lod) return;
+    const retryAt = this.failures.get(id);
+    if (retryAt !== undefined && performance.now() < retryAt) return;
     if (this.ready.some((r) => r.id === id && r.lod === lod)) return;
     const entry = this.policy.get(id);
     if (!entry) return;
@@ -208,12 +223,17 @@ export class World {
           return;
         }
         this.inflight.delete(id);
+        this.failures.delete(id);
+        this.failCounts.delete(id);
         this.ready.push({ id, lod, result });
         this.stats.lastChunkBuildMs = result.built.buildMs;
         this.stats.maxChunkBuildMs = Math.max(this.stats.maxChunkBuildMs, result.built.buildMs);
       })
       .catch((e) => {
         if (this.inflight.get(id) === lod) this.inflight.delete(id);
+        const n = (this.failCounts.get(id) ?? 0) + 1;
+        this.failCounts.set(id, n);
+        this.failures.set(id, performance.now() + Math.min(30_000, 500 * 2 ** n));
         console.error(e);
       });
   }
@@ -250,6 +270,7 @@ export class World {
     if (on === c.physics) return;
     if (on) {
       if (c.lod !== 0) return; // caller requests LOD0 first
+      this.physics.addHeightfield(c.id, c.terrain);
       for (const m of c.collision) this.physics.addStaticTriMesh(c.id, m);
     } else {
       this.physics.removeOwner(c.id);

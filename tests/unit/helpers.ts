@@ -35,3 +35,17 @@ export function signedAreaEN(ring: [number, number][]): number {
   }
   return a / 2;
 }
+
+/** Polygon area centroid in (x, z). */
+export function areaCentroid(ring: [number, number][]): [number, number] {
+  let a = 0, cx = 0, cz = 0;
+  for (let i = 0; i < ring.length; i++) {
+    const [x1, z1] = ring[i]!;
+    const [x2, z2] = ring[(i + 1) % ring.length]!;
+    const f = x1 * z2 - x2 * z1;
+    a += f;
+    cx += (x1 + x2) * f;
+    cz += (z1 + z2) * f;
+  }
+  return [cx / (3 * a), cz / (3 * a)];
+}

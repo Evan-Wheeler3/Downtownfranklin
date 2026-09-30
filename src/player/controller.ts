@@ -38,7 +38,7 @@ export class PlayerController {
   private collider: RAPIER.Collider;
   private kcc: RAPIER.KinematicCharacterController;
 
-  constructor(phys: PhysicsWorld) {
+  constructor(private readonly phys: PhysicsWorld) {
     const R = phys.R;
     const half = PLAYER.height / 2 - PLAYER.radius;
     this.body = phys.world.createRigidBody(R.RigidBodyDesc.kinematicPositionBased().setTranslation(0, 0, 0));
@@ -58,6 +58,11 @@ export class PlayerController {
     this.vy = 0;
     this.body.setTranslation({ x, y: y + PLAYER.height / 2, z }, true);
     this.body.setNextKinematicTranslation({ x, y: y + PLAYER.height / 2, z });
+    // Move the attached collider now, not at the next step, so the next controller query
+    // starts from the new position.
+    this.phys.world.propagateModifiedBodyPositionsToColliders();
+    this.phys.markDirty();
+    this.grounded = false;
   }
 
   update(dt: number, intent: MoveIntent, collisionReady: boolean): void {
@@ -92,7 +97,8 @@ export class PlayerController {
     this.vy -= PLAYER.gravity * dt;
     if (this.vy < -50) this.vy = -50;
     const desired = { x: mx * speed * dt, y: this.vy * dt, z: mz * speed * dt };
-    this.kcc.computeColliderMovement(this.collider, desired);
+    this.phys.sync();
+    this.kcc.computeColliderMovement(this.collider, desired, this.phys.R.QueryFilterFlags.EXCLUDE_SENSORS);
     const m = this.kcc.computedMovement();
     this.grounded = this.kcc.computedGrounded();
     if (this.grounded && this.vy < 0) this.vy = 0;

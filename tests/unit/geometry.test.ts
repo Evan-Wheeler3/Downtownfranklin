@@ -39,6 +39,32 @@ describe('building geometry', () => {
     }
   });
 
+  it('courtyard (hole) walls face into the courtyard', () => {
+    // Outer 30x30 CCW (east,north); hole 10x10 stored CW (east,north), as the pipeline emits.
+    const holed: BuildingRecord = {
+      ...box, id: 'holed',
+      footprint: [[0, 0], [30, 0], [30, -30], [0, -30]],
+      holes: [[[10, -10], [10, -20], [20, -20], [20, -10]]],
+    };
+    const m = newBuildingMeshes();
+    appendBuilding(m, holed);
+    let inner = 0;
+    for (const mb of [m.upper, m.storefront]) {
+      for (let i = 0; i < mb.indices.length; i += 3) {
+        const [a, b, c] = [mb.indices[i]!, mb.indices[i + 1]!, mb.indices[i + 2]!];
+        const px = (mb.positions[a * 3]! + mb.positions[b * 3]! + mb.positions[c * 3]!) / 3;
+        const pz = (mb.positions[a * 3 + 2]! + mb.positions[b * 3 + 2]! + mb.positions[c * 3 + 2]!) / 3;
+        const onHole = px > 9.9 && px < 20.1 && pz < -9.9 && pz > -20.1;
+        if (!onHole) continue;
+        inner++;
+        const n = faceNormal(mb.positions, a, b, c);
+        // courtyard centre is (15, -15): hole walls must face toward it
+        expect(n[0] * (15 - px) + n[2] * (-15 - pz)).toBeGreaterThan(0);
+      }
+    }
+    expect(inner).toBeGreaterThan(0);
+  });
+
   it('real downtown buildings produce upward roofs', () => {
     const man = loadManifest();
     const c = chunkAt(man, man.spawn!.pos[0], man.spawn!.pos[2]);

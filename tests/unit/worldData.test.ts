@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { decodeTerrain, sampleTerrain } from '../../src/world/terrain';
 import { WORLD_SCHEMA_VERSION } from '../../src/world/types';
-import { chunkAt, loadChunk, loadJson, loadManifest, signedAreaEN, WORLD_DIR } from './helpers';
+import { areaCentroid, chunkAt, loadChunk, loadJson, loadManifest, signedAreaEN, WORLD_DIR } from './helpers';
 
 /** Data contract between the pipeline output and the runtime. */
 describe('world data contract', () => {
@@ -37,9 +37,10 @@ describe('world data contract', () => {
         expect(b.height).toBeGreaterThan(2);
         expect(b.height).toBeLessThanOrEqual(80);
         expect(b.base).toBeLessThanOrEqual(b.ground + 1e-6);
-        // footprint centroid lies inside this chunk (assignment rule)
-        const cx = b.footprint.reduce((s, p) => s + p[0], 0) / b.footprint.length;
-        expect(Math.floor(cx / m.chunkSize)).toBeGreaterThanOrEqual(c.cx - 1);
+        // area centroid lies inside this chunk (assignment rule)
+        const [gx, gz] = areaCentroid(b.footprint);
+        expect(Math.floor(gx / m.chunkSize)).toBe(c.cx);
+        expect(Math.floor(gz / m.chunkSize)).toBe(c.cz);
         checked++;
       }
     }

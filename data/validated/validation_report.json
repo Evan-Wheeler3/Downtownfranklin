@@ -1,5 +1,7 @@
 {
   "addresses": {
+    "dropped_invalid": 0,
+    "input": 4707,
     "output": 4707
   },
   "buildings": {
@@ -9,27 +11,33 @@
   },
   "errors": [],
   "infrastructure": {
+    "dropped_invalid": 0,
+    "input": 1313,
     "output": 1313
   },
   "land_cover": {
+    "dropped_invalid": 0,
+    "input": 33,
     "output": 33
   },
   "land_use": {
+    "dropped_invalid": 0,
+    "input": 49,
     "output": 49
   },
   "places": {
-    "address_consistent": 1264,
-    "address_mismatch_relocated": 114,
+    "address_consistent": 1279,
+    "address_mismatch_relocated": 112,
     "address_none": 80,
-    "address_unmatched": 170,
+    "address_unmatched": 157,
     "confidence_high": 1083,
     "confidence_low": 197,
     "confidence_medium": 348,
     "input": 1628,
     "linked_nearest": 396,
-    "linked_to_building": 1161,
+    "linked_to_building": 1160,
     "output": 1628,
-    "unlinked": 71
+    "unlinked": 72
   },
   "roads": {
     "connectors_output": 1876,
@@ -41,6 +49,8 @@
     "segments_with_missing_connectors": 87
   },
   "water": {
+    "dropped_invalid": 0,
+    "input": 13,
     "output": 13
   }
 }
