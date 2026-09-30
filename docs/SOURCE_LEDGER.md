@@ -31,7 +31,7 @@ Attribution shown in-game: `public/world/manifest.json › attribution`.
 | I-05 | Building base elevation | min DEM sample over footprint vertices + centroid | `build`: `base`, `ground` (median) |
 | I-06 | Place→building link | point-in-footprint, else nearest footprint ≤ ~20 m | `places.building_link` |
 | I-07 | Waterway widths (river 24 m, stream 4 m) | Nominal; Harpeth is a centreline only in source | `WATERWAY_WIDTH_M` |
-| I-08 | Place relocations (114) | Overture point > 45 m from its NAD address point → moved to NAD point | `address_check`, `original_coordinates` |
+| I-08 | Place relocations (112) | Overture point > 45 m from its NAD address point → moved to NAD point | `address_check`, `original_coordinates` |
 | I-09 | Facade colours/storefront bands | Stylistic palette; no source facade colours for most buildings | `src/world/geometry.ts` |
 
 ## Facts about places (see also `data/authored/hero_locations.json`)

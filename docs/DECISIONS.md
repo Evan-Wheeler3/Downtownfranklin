@@ -38,7 +38,7 @@ Format: ID · date · decision · context/alternatives · consequences. Newest l
 - Avoids heightfield row/column layout ambiguity; test verifies raycast = sampled height (< 5 cm). Cost acceptable at the 160 m physics radius. Revisit if collider build time matters.
 
 ### D-011 · 2026-09-30 · Places are cross-checked against NAD address points
-- Overture place points are sometimes wrong (e.g. a garage 271 m off). Validation matches `freeform` addresses to NAD points; > 45 m → relocate to the NAD point (`MISMATCH_RELOCATED`, original kept). Result: 1264 consistent, 114 relocated, 170 unmatched.
+- Overture place points are sometimes wrong (e.g. a garage 271 m off). Validation matches `freeform` addresses to NAD points; > 45 m → relocate to the NAD point (`MISMATCH_RELOCATED`, original kept). Result (after D-020): 1,279 consistent, 112 relocated, 157 unmatched.
 
 ### D-012 · 2026-09-30 · Street widths INFERRED by class; sidewalks derived from measured facade distance
 - No licensed per-street width data. Carriageway width by OSM class; within the core, each side's sidewalk runs from the kerb to the median centreline-to-facade distance (clamped 1.5–6 m), else 2.5 m. All marked INFERRED in the ledger.

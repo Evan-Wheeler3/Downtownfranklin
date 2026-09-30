@@ -20,7 +20,7 @@ recorded in STATUS.md for each milestone.
 | M1.1 | Raw snapshots with manifest (release, bbox, sha256, license, time) | `data/raw/*/manifest.json` |
 | M1.2 | Normalize/validate/build are separate stages, re-runnable offline | `python -m franklin_pipeline build` |
 | M1.3 | Validation report with zero errors; drivable network ≥ 90 % in one component | `validation_report.json` (0.994) |
-| M1.4 | Places cross-checked against NAD; mismatches relocated with audit trail | report: consistent 1264 / relocated 114 |
+| M1.4 | Places cross-checked against NAD; mismatches relocated with audit trail | report: consistent 1279 / relocated 112 |
 | M1.5 | Runtime projection parity with PROJ < 1 cm | `tests/unit/geo.test.ts` |
 | M1.6 | Business records carry source, date, confidence; hours never invented | `worldData.test.ts` |
 

@@ -19,8 +19,8 @@ _Last updated: 2026-09-30 (session 1)._ Read this first. Then ROADMAP.md → "Ne
 - e2e (Playwright, WebGL2/SwiftShader): boot on Main Street grounded; walking; buildings block (player
   ends < 0.6 m from a facade, never inside a footprint);
   far teleport streams in/out with physics ≤ 16 chunks — 4/4 pass.
-- Validation report: 0 errors; drivable network 99.4 % in one component; places: 1,264 address-consistent,
-  114 relocated to NAD, 170 unmatched, 80 without address.
+- Validation report: 0 errors; drivable network 99.4 % in one component; places: 1,279 address-consistent,
+  112 relocated to NAD, 157 unmatched, 80 without address (after D-020 fix).
 - Visual inspection: street view at spawn (storefront row across Main St), aerial (real skewed
   downtown grid, building massing, sidewalks, parks). Screenshots in `artifacts/` (not committed).
 - Perf (SwiftShader, not a GPU benchmark): see "Perf baseline" below.
@@ -57,7 +57,7 @@ Open from review: LOD0/LOD1 terrain T-junction cracks at the 320 m ring (add ski
 ## Known issues / debt
 - Terrain LOD seams (T-junctions) at the detail ring; no skirts yet.
 - Road/sidewalk layering relies on polygon offset; intersections are overlapping ribbons.
-- Place label shows nearest place point (can pick mis-geocoded records; 170 unmatched addresses).
+- Place label shows nearest place point (can pick mis-geocoded records; 157 unmatched addresses).
 - `generatedUtc` changes on every pipeline run (manifest only; chunk output is deterministic — checked by Gauntlet major).
 - Rendering never profiled on a real GPU (none in this environment).
 
