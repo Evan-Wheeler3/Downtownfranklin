@@ -1,0 +1,90 @@
+{
+  "$comment": "HERO-tier locations. Each entry must be corroborated by >=2 independent sources (see evidence). Status VERIFIED means identity+location corroborated; interior accuracy is never implied. Building ids are resolved by the pipeline from the validated place record.",
+  "locations": [
+    {
+      "key": "franklin_theatre",
+      "name": "Franklin Theatre",
+      "place_id": "e12368a7-954f-45de-9126-d24ae708474e",
+      "address": "419 Main St",
+      "category": "theatre",
+      "status": "VERIFIED",
+      "evidence": ["overture:place (meta, conf 0.92, open)", "NAD address point 419 MAIN Street (3 m from place)", "OSM building name 'Franklin Theatre'", "research report §4 (opened 1937, reopened 2011)"],
+      "planned_interior_tier": 3
+    },
+    {
+      "key": "pucketts",
+      "name": "Puckett's Restaurant",
+      "place_id": "618ab786-2169-49a1-9641-4291fadf4c37",
+      "address": "120 4th Ave S",
+      "category": "restaurant_music",
+      "status": "VERIFIED",
+      "evidence": ["overture:place (open)", "NAD address point 120 4TH Avenue South", "OSM building name \"Puckett's Grocery and Restaurant\"", "research report §4"],
+      "planned_interior_tier": 2
+    },
+    {
+      "key": "hiram_masonic_lodge",
+      "name": "Masonic Hall (Hiram Lodge No. 7)",
+      "place_id": "0f90fc3e-d780-4b9f-a085-d15efb04ab1b",
+      "address": "115 2nd Ave S",
+      "category": "historic_building",
+      "status": "VERIFIED",
+      "evidence": ["overture:place 'Franklin Masonic Hall Hiram #7'", "NAD address point 115 2ND Avenue South", "OSM building name 'Hiram Masonic Lodge No. 7'", "research report §4 (built 1823, NHL)"],
+      "planned_interior_tier": 1
+    },
+    {
+      "key": "st_pauls_episcopal",
+      "name": "St. Paul's Episcopal Church",
+      "place_id": "52f9d5fc-a224-45a4-9b34-6305663282d1",
+      "address": "510 W Main St",
+      "category": "church",
+      "status": "VERIFIED",
+      "evidence": ["overture:place", "NAD address point 510 West MAIN Street", "OSM building name 'Saint Pauls Episcopal Church'", "research report §4"],
+      "planned_interior_tier": 1
+    },
+    {
+      "key": "landmark_booksellers",
+      "name": "Landmark Booksellers",
+      "place_id": "b4008706-05a4-4665-8412-732755e4adf9",
+      "address": "114 E Main St",
+      "category": "bookstore",
+      "status": "VERIFIED",
+      "evidence": ["overture:place (open)", "NAD address point 114 East MAIN Street", "research report §4 (listing updated Aug 2026)"],
+      "planned_interior_tier": 2
+    },
+    {
+      "key": "kimbros",
+      "name": "Kimbro's Pickin' Parlor",
+      "place_id": "66c4f60d-a793-45b3-88bf-51b5d4f81d8f",
+      "address": "214 S Margin St",
+      "category": "music_venue",
+      "status": "VERIFIED",
+      "evidence": ["overture:place (open)", "NAD address point 214 South MARGIN Street", "OSM building name \"The Legendary Kimbro's Pickin' Parlor\"", "research report §4"],
+      "planned_interior_tier": 2
+    },
+    {
+      "key": "fourth_ave_garage",
+      "name": "Fourth Avenue Parking Garage",
+      "place_id": "f0575241-3f76-4178-9227-3fa61b0fc605",
+      "address": "115 4th Ave S",
+      "category": "parking_garage",
+      "status": "VERIFIED",
+      "evidence": ["overture:place", "NAD address point 115 4TH Avenue South", "OSM building name 'Fourth Avenue Parking Garage'", "research report §4"],
+      "planned_interior_tier": 1
+    },
+    {
+      "key": "second_ave_garage",
+      "name": "Second Avenue Parking Garage",
+      "place_id": "fc79657e-ee81-465c-b276-d15c6af9afc0",
+      "address": "108 2nd Ave S",
+      "category": "parking_garage",
+      "status": "VERIFIED",
+      "evidence": ["overture:place (point 271 m off; relocated to NAD by validation)", "NAD address point 108 2ND Avenue South", "OSM building name 'Second Avenue Parking Garage'", "research report §4"],
+      "planned_interior_tier": 1
+    }
+  ],
+  "pending_verification": [
+    {"name": "Williamson County Courthouse (1858)", "reason": "Location UNKNOWN: research coordinate 35.92389,-86.86917 falls on the Williamson County Judicial Center footprint (OSM); two Overture courthouse records disagree. Needs primary-source location."},
+    {"name": "Gray's on Main (332 Main St)", "reason": "OSM building is named \"Grey's on Main\"; spelling conflict with research; no NAD cross-check yet."},
+    {"name": "Public Square", "reason": "Road ring 'Public Square' present in OSM/Overture; square interior features (monument, markers, statue) not yet sourced as geometry."}
+  ]
+}

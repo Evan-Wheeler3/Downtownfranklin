@@ -1,0 +1,20 @@
+{
+  "source": "USGS 3D Elevation Program (3DEP) 1 meter DEM",
+  "project": "TN_Middle_B2_2018",
+  "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/TN_Middle_B2_2018/TIFF/USGS_one_meter_x51y398_TN_Middle_B2_2018.tif",
+  "license": "Public domain (USGS)",
+  "crs": "EPSG:26916",
+  "bounds_native": [
+    510372.78553861176,
+    3974194.146413822,
+    513083.01313857303,
+    3977081.4955594297
+  ],
+  "shape": [
+    2887,
+    2710
+  ],
+  "nodata": -999999.0,
+  "sha256": "c2e8caabb813efc41a192d54a5d6d49e92aa44e8d7bf0977eab99e1d02de4c2e",
+  "fetched_utc": "2026-09-30T21:17:47+00:00"
+}

@@ -1,0 +1,7 @@
+# Geographic data pipeline (Python 3.11+). Install: python -m venv .venv && .venv/bin/pip install -r pipeline/requirements.txt
+numpy==2.4.6
+pyarrow==25.0.1
+pyproj==3.7.2
+rasterio==1.4.4
+shapely==2.1.2
+pytest==9.1.1

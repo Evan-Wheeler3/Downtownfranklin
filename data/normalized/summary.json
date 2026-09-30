@@ -1,0 +1,17 @@
+{
+  "counts": {
+    "addresses": 4707,
+    "buildings": 2815,
+    "infrastructure": 1313,
+    "land_cover": 33,
+    "land_use": 49,
+    "places": 1628,
+    "road_connectors": 1876,
+    "road_segments": 1329,
+    "water": 13
+  },
+  "meta": {
+    "crs": "EPSG:4326",
+    "overture_release": "2026-09-23.1"
+  }
+}

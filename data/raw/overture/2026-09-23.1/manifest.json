@@ -1,0 +1,101 @@
+{
+  "source": "Overture Maps Foundation",
+  "bucket": "s3://overturemaps-us-west-2/release/2026-09-23.1/",
+  "release": "2026-09-23.1",
+  "bbox_wgs84": [
+    -86.885,
+    35.912,
+    -86.855,
+    35.938
+  ],
+  "files": {
+    "buildings.building.geojson": {
+      "theme": "buildings",
+      "type": "building",
+      "features": 2815,
+      "sha256": "e42ad59e1cac979afac924c222086489649893e6f25d2a3b14145c9872b7801a",
+      "license": "ODbL-1.0 (contains OSM-derived data; other sources carry their own permissive terms)",
+      "fetched_utc": "2026-09-30T21:15:57+00:00"
+    },
+    "buildings.building_part.geojson": {
+      "theme": "buildings",
+      "type": "building_part",
+      "features": 3,
+      "sha256": "5d20eed2ee57b9b39fc28f7e36fd251493a2abc06da8e82fb4f52d92df85fb9b",
+      "license": "ODbL-1.0 (contains OSM-derived data; other sources carry their own permissive terms)",
+      "fetched_utc": "2026-09-30T21:15:59+00:00"
+    },
+    "transportation.segment.geojson": {
+      "theme": "transportation",
+      "type": "segment",
+      "features": 1329,
+      "sha256": "5fc9103d394d9b1e187da36e7d9a74007924cf6577424931c5de8af09ea9c977",
+      "license": "ODbL-1.0",
+      "fetched_utc": "2026-09-30T21:16:09+00:00"
+    },
+    "transportation.connector.geojson": {
+      "theme": "transportation",
+      "type": "connector",
+      "features": 1876,
+      "sha256": "29ec47e7b057cee89d0e91a5bf1ecf38f4bbf4f19b95597fcc4fdf2fcd608c86",
+      "license": "ODbL-1.0",
+      "fetched_utc": "2026-09-30T21:16:11+00:00"
+    },
+    "places.place.geojson": {
+      "theme": "places",
+      "type": "place",
+      "features": 1628,
+      "sha256": "b7a5a1a306f283e673474d52d9155b1854403fcf671d9a373b42e78384838db1",
+      "license": "CDLA-Permissive-2.0",
+      "fetched_utc": "2026-09-30T21:16:16+00:00"
+    },
+    "addresses.address.geojson": {
+      "theme": "addresses",
+      "type": "address",
+      "features": 4707,
+      "sha256": "262984d5d1030d5627b620cca99ec3b4a8d3d8ed043958858903003423fcba80",
+      "license": "Varies per source; see per-feature sources",
+      "fetched_utc": "2026-09-30T21:16:20+00:00"
+    },
+    "base.land_use.geojson": {
+      "theme": "base",
+      "type": "land_use",
+      "features": 49,
+      "sha256": "55f5912d637528625aa17725c5ac9491decc0049944c7f69f457ba3dc0954906",
+      "license": "ODbL-1.0",
+      "fetched_utc": "2026-09-30T21:16:23+00:00"
+    },
+    "base.water.geojson": {
+      "theme": "base",
+      "type": "water",
+      "features": 13,
+      "sha256": "6649c0dc5615de3b1871815a1b3decc3dc0b8ee197c265d2804b085a5c8b8ecd",
+      "license": "ODbL-1.0",
+      "fetched_utc": "2026-09-30T21:16:27+00:00"
+    },
+    "base.infrastructure.geojson": {
+      "theme": "base",
+      "type": "infrastructure",
+      "features": 1313,
+      "sha256": "65f54c15324e9404231cf2a1aa95016cd17291b811a4ab0259636ae1d4523079",
+      "license": "ODbL-1.0",
+      "fetched_utc": "2026-09-30T21:16:31+00:00"
+    },
+    "base.land.geojson": {
+      "theme": "base",
+      "type": "land",
+      "features": 7,
+      "sha256": "927f6720f96975bf1330e2bf24341e9e6591f3e115d6d154b1073989eb29c4dd",
+      "license": "ODbL-1.0",
+      "fetched_utc": "2026-09-30T21:16:36+00:00"
+    },
+    "base.land_cover.geojson": {
+      "theme": "base",
+      "type": "land_cover",
+      "features": 33,
+      "sha256": "1fbc9019473b3f32f839cc21200dcf5adf12ba09b6b7b2d40ede8072ffb7ffb3",
+      "license": "ODbL-1.0",
+      "fetched_utc": "2026-09-30T21:16:41+00:00"
+    }
+  }
+}

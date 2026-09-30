@@ -1,0 +1,11 @@
+{
+  "$comment": "Authored world settings. Geographic references are resolved by the pipeline against validated data; nothing here is a coordinate claim.",
+  "spawn": {
+    "near_place_id": "e12368a7-954f-45de-9126-d24ae708474e",
+    "near_place_name": "Franklin Theatre",
+    "snap_to_street": "Main Street",
+    "face": "place",
+    "stand": "opposite",
+    "note": "Main Street, opposite the Franklin Theatre, facing it"
+  }
+}
