@@ -10,9 +10,10 @@ Vertical milestones; each must leave the game runnable and pass its acceptance c
 | M2 | Geographic world slice | ✅ done (perf follow-ups in M3) | streamed downtown from data, first-person walking, Rapier collision (terrain, buildings, kerbs), LOD rings, spawn on Main St, HUD with lat/lon + street, e2e tests |
 | M3 | Street-level fidelity + geo verification | ⛔ superseded by M3-V (D-021) | geo-verify report and worker builds kept |
 | **M3-V** | **Stylised voxel world overhaul** | ✅ done (session 2) | rotated axis-aligned grid, voxel generator + greedy AO mesher, TSL block shading, sky/clouds/bloom, voxel collision |
-| **M4** | **Look & feel II: time of day + atmosphere** | ⏭ next | sim clock, sun path, golden hour/dusk/night palettes, window + lamp glow at night, weather (rain/overcast), ambient sound hooks |
-| M5 | Living town I: places you can enter | planned | shop/house interiors as voxel rooms generated per archetype (FICTIONAL, art-directed), door portals, signage from place names, business categories → interaction profiles |
-| M6 | RPG core: player, inventory, money, save v1 | planned | character state, wallet, inventory, buy/sell/eat/drink, versioned save/migrations |
+| M4 | Look & feel II: time of day + atmosphere | ✅ day/night done (weather pending) | sim clock, sun path, golden hour/dusk/night palettes, window + lamp glow at night, weather (rain/overcast), ambient sound hooks |
+| **M4-P** | **First playable loop** | ✅ done (session 3) | title/pause, clock, money/energy/mood, shops at real business doors, odd-jobs phone (parcel runs, errands, rush), beacon + compass, versioned save/continue |
+| **M5** | **Living town I: places you can enter** | ⏭ next | shop/house interiors as voxel rooms generated per archetype (FICTIONAL, art-directed), door portals, signage from place names, business categories → interaction profiles |
+| M6 | RPG depth: progression, reputation, home base | planned | character state, wallet, inventory, buy/sell/eat/drink, versioned save/migrations |
 | M7 | Quests & jobs | planned | data-driven quest graph, job board, errands/deliveries across town, waypoints, journal UI |
 | M8 | Townsfolk (NPCs) | planned | voxel-styled characters, schedules, homes/workplaces, dialogue, relationship meters, crowd LOD |
 | M9 | Traffic & life on the streets | planned | voxel cars on the road graph, signals, parking; birds, ambient props |

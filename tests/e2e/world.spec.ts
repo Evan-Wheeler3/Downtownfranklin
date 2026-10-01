@@ -38,7 +38,7 @@ async function boot(page: Page): Promise<string[]> {
   page.on('console', (m) => {
     if (m.type() === 'error' && !/favicon|404/.test(m.text())) errors.push(m.text());
   });
-  await page.goto('/?renderer=webgl&quality=low&nohelp');
+  await page.goto('/?renderer=webgl&quality=low&nohelp&play');
   await page.waitForFunction(() => window.__franklin?.settled || window.__franklinError, null, { timeout: 150_000 });
   expect(await page.evaluate(() => window.__franklinError ?? null)).toBeNull();
   return errors;
@@ -77,7 +77,7 @@ test('walking moves the player along the street and stays grounded', async ({ pa
       return Math.hypot(p.x - p0.x, p.z - p0.z) > 15;
     },
     a.pos,
-    { timeout: 120_000 },
+    { timeout: 240_000 },
   );
   await page.evaluate(() => window.__franklin.move(null));
   const b = await state(page);

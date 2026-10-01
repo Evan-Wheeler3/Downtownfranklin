@@ -6,13 +6,19 @@ export class InputState {
   private lookDX = 0;
   private lookDY = 0;
   private pressed = new Set<string>();
+  /** Ordered key presses since last drain (for UI/session commands). */
+  private queue: string[] = [];
+  /** Gate for click-to-lock (false while menus are open). */
+  canLock: () => boolean = () => true;
   fly = false;
   /** Scripted override (automation/tests); takes precedence over keyboard when set. */
   scripted: Partial<MoveIntent> | null = null;
 
   constructor(private readonly el: HTMLElement) {
     window.addEventListener('keydown', (e) => {
+      if (e.code === 'Tab') e.preventDefault();
       if (e.repeat) return;
+      this.queue.push(e.code);
       this.keys.add(e.code);
       this.pressed.add(e.code);
       if (e.code === 'KeyF') this.fly = !this.fly;
@@ -20,7 +26,7 @@ export class InputState {
     window.addEventListener('keyup', (e) => this.keys.delete(e.code));
     window.addEventListener('blur', () => this.keys.clear());
     el.addEventListener('click', () => {
-      if (document.pointerLockElement !== el) el.requestPointerLock?.();
+      if (document.pointerLockElement !== el && this.canLock()) this.lock();
     });
     document.addEventListener('mousemove', (e) => {
       if (document.pointerLockElement !== el) return;
@@ -31,6 +37,25 @@ export class InputState {
 
   get locked(): boolean {
     return document.pointerLockElement === this.el;
+  }
+
+  lock(): void {
+    try {
+      const r = this.el.requestPointerLock?.() as unknown;
+      if (r && typeof (r as Promise<void>).catch === 'function') (r as Promise<void>).catch(() => {});
+    } catch {
+      /* pointer lock unavailable (headless) */
+    }
+  }
+
+  unlock(): void {
+    if (document.pointerLockElement) document.exitPointerLock();
+  }
+
+  drainPresses(): string[] {
+    const q = this.queue;
+    this.queue = [];
+    return q;
   }
 
   /** Returns true once per key press. */

@@ -118,6 +118,18 @@ export function meshVolume(vol: VoxelVolume, opts: MeshOptions = {}): VoxelMesh 
   const data = vol.data;
   const OPQ = OPAQUE_TABLE;
   const GREEDY = GREEDY_TABLE;
+  // Occupied horizontal layers (most of a chunk's volume is sky): skip empty ones entirely.
+  const layerUsed = new Uint8Array(vol.sy);
+  const layerSize = vol.sx * vol.sz;
+  // ...and empty x-rows: rowUsed[y * sz + z] = 1 if any cell in that row is non-air.
+  const rowUsed = new Uint8Array(vol.sy * vol.sz);
+  for (let y = 0; y < vol.sy; y++) {
+    for (let z = 0; z < vol.sz; z++) {
+      const base = (y * vol.sz + z) * vol.sx;
+      for (let x = 0; x < vol.sx; x++) if (data[base + x]) { rowUsed[y * vol.sz + z] = 1; layerUsed[y] = 1; break; }
+    }
+  }
+  void layerSize;
 
   // ---- greedy full-cube faces ----
   for (let d = 0; d < 3; d++) {
@@ -130,12 +142,20 @@ export function meshVolume(vol: VoxelVolume, opts: MeshOptions = {}): VoxelMesh 
       const n: [number, number, number] = [0, 0, 0];
       n[d] = s;
       for (let c = 0; c < dd; c++) {
+        if (d === 1 && !layerUsed[c]) continue;
         const cn = c + s;
         const inN = cn >= 0 && cn < dd;
         let any = false;
+        mask.fill(0);
         for (let j = 0; j < dv; j++) {
+          if (v === 1 && !layerUsed[j]) continue;
+          // d=2 (z slices): row (y=j, z=c) — skip whole row when empty
+          if (d === 2 && !rowUsed[j * vol.sz + c]) continue;
           const rowBase = c * sd + j * sv;
           for (let i = 0; i < du; i++) {
+            if (u === 1 && !layerUsed[i]) continue;
+            // d=0 (x slices): u=y, v=z ; d=1 (y slices): u=z, v=x
+            if (d === 0 ? !rowUsed[i * vol.sz + j] : d === 1 ? !rowUsed[c * vol.sz + i] : false) continue;
             const idx = rowBase + i * su;
             const a = data[idx]!;
             let key = 0;
@@ -208,6 +228,7 @@ export function meshVolume(vol: VoxelVolume, opts: MeshOptions = {}): VoxelMesh 
     const du = vol.sx, dv = vol.sz;
     const mask = new Int32Array(du * dv);
     for (let y = 0; y < vol.sy; y++) {
+      if (!layerUsed[y]) continue;
       let any = false;
       for (let z = 0; z < dv; z++) for (let x = 0; x < du; x++) {
         const idx = y * st[1]! + z * vol.sx + x;
@@ -245,6 +266,7 @@ export function meshVolume(vol: VoxelVolume, opts: MeshOptions = {}): VoxelMesh 
   // ---- per-cell shapes: slab sides/bottoms, water, plants ----
   const NB: [number, number, number][] = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
   for (let y = 0; y < vol.sy; y++) {
+    if (!layerUsed[y]) continue;
     for (let z = 0; z < vol.sz; z++) {
       for (let x = 0; x < vol.sx; x++) {
         const a = vol.data[(y * vol.sz + z) * vol.sx + x]!;

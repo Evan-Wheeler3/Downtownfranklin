@@ -73,11 +73,21 @@ export interface AreaRecord {
   holes?: Vec2[][];
 }
 
+export interface DoorInfo {
+  /** Point on the facade (x, z). */
+  wall: Vec2;
+  /** Outward unit normal of the facade at the door (x, z). */
+  normal: Vec2;
+  /** Where a visitor stands, outside the door. */
+  stand: Vec3;
+}
+
 export interface PlaceMarker {
   id: string;
   name: string;
   cat?: string;
   pos: Vec3;
+  door?: DoorInfo;
 }
 
 export interface TerrainPatch {

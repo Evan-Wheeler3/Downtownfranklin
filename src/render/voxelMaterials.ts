@@ -24,6 +24,8 @@ export const skyUniforms = {
   sunDir: uniform(new THREE.Vector3(0.4, 0.6, -0.5).normalize()),
   sunColor: uniform(new THREE.Color(0xffd9a0)),
   fogDensity: uniform(0.0042),
+  /** 0 day … 1 night: drives window glow, lamp intensity, stars, cloud darkening. */
+  night: uniform(0.0),
 };
 
 // TSL's generated typings are stricter than its runtime; nodes are passed loosely here.
@@ -149,7 +151,9 @@ export function createVoxelMaterials(low = false): Record<'opaque' | 'foliage' |
   const glass = new THREE.MeshStandardNodeMaterial({ roughness: 0.1, metalness: 0.15 });
   glass.colorNode = mix(vcol.mul(0.45), mix(skyUniforms.haze, skyUniforms.horizon, 0.5), fres.mul(0.7).add(0.2)).mul(blockEdge(0.1, 0.45));
   // warm interior glow, a little stronger on shop windows
-  glass.emissiveNode = vec3(1.0, 0.78, 0.48).mul(h3(blockCell()).mul(0.08).add(0.03));
+  // warm interior light: faint by day; at night roughly two thirds of windows are lit
+  const lit = step(0.33, h3(floor(blockCell().div(vec3(2.0, 3.0, 2.0)))));
+  glass.emissiveNode = vec3(1.0, 0.74, 0.42).mul(h3(blockCell()).mul(0.08).add(0.03).add(skyUniforms.night.mul(lit).mul(1.6)));
 
   const water = new THREE.MeshStandardNodeMaterial({ roughness: 0.05, metalness: 0.0, transparent: true, opacity: 0.85 });
   const ripple = sin(positionWorld.x.mul(1.7).add(time.mul(1.3))).mul(sin(positionWorld.z.mul(1.3).sub(time.mul(1.1)))).mul(0.07);
@@ -159,7 +163,7 @@ export function createVoxelMaterials(low = false): Record<'opaque' | 'foliage' |
   water.depthWrite = false;
 
   const emissive = new THREE.MeshBasicNodeMaterial();
-  emissive.colorNode = vcol.mul(3.0);
+  emissive.colorNode = vcol.mul(skyUniforms.night.mul(4.0).add(1.6));
 
   return { opaque, foliage, glass, water, emissive };
 }
@@ -189,7 +193,12 @@ export function createSky(): THREE.Mesh {
   const sunDot = max(dot(dir, skyUniforms.sunDir), 0.0);
   const glow = pow(sunDot, 10.0).mul(0.25).add(pow(sunDot, 90.0).mul(0.4)).add(pow(sunDot, 1500.0).mul(5.0));
   const below = smoothstep(0.0, -0.2, dir.y);
-  mat.colorNode = mix(base.add(skyUniforms.sunColor.mul(glow)), skyUniforms.horizon, below);
+  // stars: sparse hashed cells on the upper sky, twinkling, visible at night
+  const cell = floor(dir.mul(420.0));
+  const star = step(0.9965, hash(cell.x.mul(12.9898).add(cell.y.mul(78.233)).add(cell.z.mul(37.719)).add(5000.0)))
+    .mul(smoothstep(0.05, 0.3, dir.y)).mul(sin(time.mul(2.0).add(cell.x)).mul(0.3).add(0.7));
+  const stars = vec3(1.0, 0.97, 0.9).mul(star.mul(skyUniforms.night).mul(1.6));
+  mat.colorNode = mix(base.add(skyUniforms.sunColor.mul(glow)).add(stars), skyUniforms.horizon, below);
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(2400, 48, 24), mat);
   mesh.name = 'sky';
   mesh.frustumCulled = false;
@@ -233,7 +242,8 @@ export function createClouds(seed = 11): THREE.InstancedMesh {
   // fade into the horizon haze with distance
   const dist = positionWorld.sub(cameraPosition).length();
   const c = mix(mix(warm, cool, underside.mul(0.8).add(float(1.0).sub(lit).mul(0.25))), skyUniforms.horizon, smoothstep(1100.0, 2400.0, dist).mul(0.45));
-  mat.colorNode = c;
+  // at night clouds take the (dark) haze colour, faintly moonlit on top
+  mat.colorNode = mix(c, mix(skyUniforms.haze.mul(1.1), skyUniforms.sunColor.mul(0.35), lit.mul(0.35)), skyUniforms.night.mul(0.97));
   const mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), mat, boxes.length);
   const m = new THREE.Matrix4();
   boxes.forEach(([x, y, z, w, h, d], i) => {

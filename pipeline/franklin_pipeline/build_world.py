@@ -21,6 +21,7 @@ from collections import defaultdict
 import numpy as np
 import rasterio
 import shapely
+import shapely.ops
 from pyproj import Transformer
 from shapely.geometry import LineString, Polygon, box, mapping, shape
 from shapely.ops import substring, transform
@@ -240,6 +241,8 @@ def main() -> int:
 
     # --- Street corridor: measured centreline-to-facade distance per side ----------
     fp_polys = [Polygon(b["footprint"]) for ch in chunks.values() for b in ch["buildings"]]
+    fp_by_id = {b["id"]: Polygon(b["footprint"]) for ch in chunks.values() for b in ch["buildings"]}
+    street_lines: list[LineString] = []
     fp_tree = STRtree(fp_polys)
 
     def facade_distances(line: LineString, reach: float = 30.0) -> tuple[float | None, float | None]:
@@ -274,6 +277,8 @@ def main() -> int:
     for f in read_fc(VALIDATED / "road_segments.geojson"):
         p = f["properties"]
         line = _geom_to_game(shape(f["geometry"]))
+        if p.get("kind") == "road" and p.get("class") in C.SIDEWALK_CLASSES and not p.get("subclass"):
+            street_lines.append(line)
         width = _road_width(p)
         in_core = line.intersects(core_poly)
         sw_l = sw_r = None
@@ -378,6 +383,37 @@ def main() -> int:
     # --- Businesses (from places) ---------------------------------------------------
     overrides = {o["place_id"]: o for o in authored["business_overrides"].get("overrides", [])}
     businesses = []
+    street_tree = STRtree(street_lines)
+    used_doors: dict[str, list] = defaultdict(list)
+
+    def door_for(building_id: str | None):
+        """Street-facing entrance on the building footprint: the wall point nearest a street,
+        nudged along the wall if another business already uses that spot. Returns
+        (wall point (x, z), outward unit normal) or None. INFERRED placement (FICTIONAL gameplay)."""
+        poly = fp_by_id.get(building_id or "")
+        if poly is None:
+            return None
+        near = [street_lines[int(i)] for i in street_tree.query(poly.buffer(40))]
+        if not near:
+            return None
+        streets = shapely.union_all(near)
+        ring = poly.exterior
+        wall_pt, _ = shapely.ops.nearest_points(ring, streets)
+        t = ring.project(wall_pt)
+        for k in range(8):
+            if all(abs(t - u) > 3.0 for u in used_doors[building_id]):
+                break
+            t = (t + (4.0 if k % 2 == 0 else -8.0 * (k // 2 + 1))) % ring.length
+        used_doors[building_id].append(t)
+        wall_pt = ring.interpolate(t)
+        a, b = ring.interpolate(max(0.0, t - 0.5)), ring.interpolate(min(ring.length, t + 0.5))
+        dx, dz = b.x - a.x, b.y - a.y
+        ln = math.hypot(dx, dz) or 1.0
+        nx, nz = dz / ln, -dx / ln
+        probe = shapely.geometry.Point(wall_pt.x + nx * 0.5, wall_pt.y + nz * 0.5)
+        if poly.contains(probe):
+            nx, nz = -nx, -nz
+        return (wall_pt.x, wall_pt.y), (nx, nz)
     for f in places_by_id.values():
         p = f["properties"]
         x, z = lonlat_to_game(*f["geometry"]["coordinates"][:2])
@@ -399,14 +435,22 @@ def main() -> int:
             "inCore": in_core, "interiorTier": 0, "tags": [],
             "hero": hero_by_place[f["id"]]["key"] if f["id"] in hero_by_place else None,
         }
+        d = door_for(p.get("building_id")) if in_core else None
+        if d:
+            (wx, wz), (nx, nz) = d
+            sx, sz = wx + nx * 1.4, wz + nz * 1.4
+            sy = dem.sample([sx], [sz])[0]
+            rec["door"] = {"wall": [_r(wx), _r(wz)], "normal": [_r(nx, 3), _r(nz, 3)],
+                           "stand": [_r(sx), _r(0 if np.isnan(sy) else sy - datum), _r(sz)]}
         if f["id"] in overrides:
             rec.update({k: v for k, v in overrides[f["id"]].items() if k != "place_id"})
             rec["authored"] = True
         businesses.append({k: v for k, v in rec.items() if v is not None})
         cxz = _chunk_of(x, z)
         if cxz in chunks and in_core:
-            chunks[cxz]["places"].append({"id": rec["id"], "name": rec["name"], "cat": rec.get("category"),
-                                          "pos": rec["pos"]})
+            chunks[cxz]["places"].append({k: v for k, v in {
+                "id": rec["id"], "name": rec["name"], "cat": rec.get("category"), "pos": rec["pos"],
+                "door": rec.get("door")}.items() if v is not None})
 
     # --- Terrain + write chunks -----------------------------------------------------
     n = int(C.CHUNK_SIZE_M / C.TERRAIN_SPACING_M) + 1

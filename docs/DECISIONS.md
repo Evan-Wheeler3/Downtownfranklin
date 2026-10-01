@@ -90,3 +90,15 @@ Format: ID · date · decision · context/alternatives · consequences. Newest l
 - Light: golden sun (azimuth 210°, elevation 33°), cool sky fill + warm ground bounce (soft blue-violet shadows), ACES filmic.
 - Post (full quality only): bloom on HDR highlights, raymarched sun shafts (built lazily once the shadow map exists), saturation 1.32, warm-highlight/cool-shadow split toning, vignette, fine grain. All tunables in `LOOK`. `?rays=0` disables shafts.
 - Tuning lessons (screenshots): haze density > 0.002 and bloom threshold < 1 washed the image out; additive shafts must stay ≲ 0.2.
+
+### D-026 · 2026-10-01 · First playable loop architecture
+- `src/game/session.ts` owns the play session (mode: title/playing/paused), driving pure systems: `sim/clock.ts` (1 real s = 1 game min), `game/state.ts` (money, energy, mood, inventory), `game/jobs.ts` (deterministic daily board: parcel runs, errands, rush deliveries between real downtown places), `game/places.ts` (visitable businesses), `game/save.ts` (versioned save with ordered migrations; localStorage with in-memory fallback). UI is DOM (`src/ui/ui.ts`), cozy paper cards; engine exposure via a narrow `EngineHooks` interface.
+- Content (`src/content/items.ts`, `shops.ts`) is FICTIONAL and data-driven: category → shop profile (stock, prices, opening hours, greetings). Real business names/positions come from world data; what they sell in-game and their hours are invented (real hours UNKNOWN, D-013).
+- Shops are "counter" interactions at the door (press E) — full interiors come later.
+- `?play` skips the title (automation); `window.__franklin` gained gameplay hooks (session, acceptJob, openPlace, click, setHour).
+
+### D-027 · 2026-10-01 · Business entrances computed in the pipeline
+- `build_world.door_for`: the footprint wall point nearest a street centreline (named sidewalk-class roads within 40 m), nudged along the wall when several businesses share a building; outward normal; a "stand" point 1.4 m outside. 1,020 of 1,061 core businesses get a door. The voxel generator carves a 2-high door and hangs a lantern there, so visual entrances match interaction points. Additive schema fields (`door` on businesses and chunk places).
+
+### D-028 · 2026-10-01 · Time-of-day atmosphere
+- `sim/sky.ts` keyframes (night, pre-dawn, dawn, morning, noon, afternoon, golden hour, sunset, dusk) for light/sky/haze/exposure and a `night` factor; the directional light becomes a cool moon at night. Night drives window glow (~2/3 of windows lit, hashed per window), lamp intensity, twinkling stars and darker clouds.

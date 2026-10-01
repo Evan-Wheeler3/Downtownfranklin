@@ -41,6 +41,20 @@ Downtown Franklin's real street grid, footprints, heights and terrain remain the
 - Investigated a "centre seam": it is the kerb line converging to the vanishing point when standing on
   the kerb looking down the street — real geometry, not an artifact.
 
+## Session 3 (cont.) — first playable loop (D-026…D-028)
+- Title screen (Begin / Continue / New Game), pause menu (Esc), autosave every 30 s + on key actions.
+- Day/night clock (24-min day) with keyframed sky: dawn, golden hour, sunset, night (lit windows, lamps, stars).
+- Walk to any of ~1,000 downtown businesses' doors (lantern + carved door) → E → shop card with FICTIONAL
+  stock/prices/hours by category (café, bakery, restaurant, pizzeria, tavern, sweets, books, florist,
+  boutique, gifts, corner store, box office, offices).
+- Needs: energy drains over time and when running (no running at 0), food/drink restore; mood rises with
+  treats, visits and finished work. Phone (Tab): Odd Jobs board (3 kinds, new board each day), Bag (eat/drink/use),
+  Me (stats, rest an hour).
+- Objective compass (arrow + distance) and a golden beacon at the next stop.
+- Tests: 35 unit (incl. economy, jobs, save migrations, clock) · e2e gameplay: full delivery via UI → paid →
+  reload → Continue restores progress; buy + drink coffee restores energy.
+- Screenshots: `artifacts/play-trio.png` (title, HUD, shop), `artifacts/tod-pair.png` (golden hour, night).
+
 ## Known issues
 - First load streams for several seconds; generator + mesher need optimisation (see ROADMAP debt).
 - Player spawns hugging a facade (spawn uses pipeline sidewalk widths; voxel sidewalks differ slightly).
@@ -48,4 +62,5 @@ Downtown Franklin's real street grid, footprints, heights and terrain remain the
 - Debug HUD hidden by default (`?debug` or H).
 
 ## Next
-M4 — time of day, night lighting (window glow), weather. Then M5 interiors.
+M5 — enterable interiors (voxel rooms per shop archetype), then townsfolk NPCs (M8 moved earlier?),
+weather, and RPG depth (progression/reputation, a home). Perf: mesher quad emission (~155 ms warm/chunk).

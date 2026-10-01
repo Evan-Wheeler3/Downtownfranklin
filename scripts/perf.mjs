@@ -9,7 +9,7 @@ const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? proces
 const gpu = process.argv.includes('--gpu');
 const base = arg('--url', 'http://127.0.0.1:4173');
 const out = arg('--out', `artifacts/perf-${new Date().toISOString().replace(/[:.]/g, '-')}.json`);
-const query = gpu ? '?nohelp' : '?renderer=webgl&quality=low&nohelp';
+const query = gpu ? '?nohelp&play' : '?renderer=webgl&quality=low&nohelp&play';
 
 const browser = await chromium.launch({
   executablePath: process.env.PW_CHROMIUM ?? '/opt/pw-browsers/chromium',

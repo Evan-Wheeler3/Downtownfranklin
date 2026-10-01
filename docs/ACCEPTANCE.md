@@ -44,6 +44,16 @@ recorded in STATUS.md for each milestone.
 | V.4 | Walls block, terrain walkable, half-slab steps climbable | `physics.test.ts`, e2e |
 | V.5 | Visual review: aerial + street-level screenshots read as "clean, artsy voxel town" | STATUS session 2 |
 
+## M4-P — First playable loop ✅
+| # | Criterion | Evidence |
+|---|---|---|
+| P.1 | Start → title → play; pause/resume; quit to title | manual + debug API |
+| P.2 | Shops sell items with money checks; closed outside FICTIONAL hours | `gameplay.test.ts`, e2e buy test |
+| P.3 | Energy drains and food restores it; no sprint at 0 | `gameplay.test.ts`, e2e |
+| P.4 | Job board: deterministic per day, 3 kinds; full delivery through UI pays out | `gameplay.test.ts`, e2e delivery test |
+| P.5 | Save versioned, migrations tested, Continue restores progress after reload | `gameplay.test.ts`, e2e |
+| P.6 | Day/night visibly changes the world (lit windows, lamps, stars) | `artifacts/tod-pair.png` |
+
 ## M3 — Street-level fidelity + geo verification (superseded by M3-V)
 - M3.1 Geo-verify report: ≥ 99 % of validated core footprints present in world chunks, centroid Δ < 0.05 m, area Δ < 1 %; every HERO resolved.
 - M3.2 Chunk build off main thread: max main-thread stall from streaming < 4 ms (measured).

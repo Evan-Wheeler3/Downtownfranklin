@@ -2,7 +2,11 @@ import { LocalProjection } from '../core/geo';
 import { initRapier, PhysicsWorld } from '../physics/physics';
 import { PLAYER, PlayerController } from '../player/controller';
 import { InputState } from '../player/input';
-import { createRenderContext, placeSun, renderFrame, type RenderContext } from '../render/renderer';
+import { applyAtmosphere, createRenderContext, renderFrame, type RenderContext } from '../render/renderer';
+import { atmosphereAt } from '../sim/sky';
+import { UI } from '../ui/ui';
+import { PlaceDirectory } from './places';
+import { Session } from './session';
 import { Hud } from '../ui/hud';
 import { World } from '../world/world';
 import { FrameStats } from './perf';
@@ -23,6 +27,9 @@ export class Game {
   player!: PlayerController;
   input!: InputState;
   hud!: Hud;
+  ui!: UI;
+  session!: Session;
+  places!: PlaceDirectory;
   proj!: LocalProjection;
   readonly perf = new FrameStats();
   private spawned = false;
@@ -48,15 +55,39 @@ export class Game {
     this.ctx.scene.add(this.world.root);
     this.player = new PlayerController(this.physics);
     this.input = new InputState(this.ctx.renderer.domElement);
-    this.hud = new Hud(this.opts.container, this.world.manifest.attribution);
-    this.hud.hideHelp = new URLSearchParams(location.search).has('nohelp');
+    this.hud = new Hud(this.opts.container, []);
+    this.hud.hideHelp = true;
+    this.ui = new UI(this.opts.container, this.world.manifest.attribution);
+    this.places = await PlaceDirectory.load(`${this.opts.worldUrl}/businesses.json`);
 
-    const sp = this.world.manifest.spawn;
-    this.requestSpawn(sp ? sp.pos[0] : 0, sp ? sp.pos[2] : 0, sp ? (sp.yawDeg * Math.PI) / 180 : 0);
+    const sp = this.defaultSpawn();
+    this.requestSpawn(sp.x, sp.z, sp.yaw);
+
+    const canvas = this.ctx.renderer.domElement;
+    this.session = new Session({
+      scene: this.ctx.scene,
+      playerPos: () => this.player.pos,
+      playerYaw: () => this.player.yaw,
+      spawnAt: (x, z, yaw) => this.requestSpawn(x, z, yaw),
+      defaultSpawn: () => this.defaultSpawn(),
+      lockPointer: () => this.input.lock(),
+      unlockPointer: () => this.input.unlock(),
+      pointerLocked: () => document.pointerLockElement === canvas,
+      applyAtmosphere: (hour) => applyAtmosphere(this.ctx, atmosphereAt(hour), this.ctx.camera.position),
+    }, this.places, this.ui);
+    this.input.canLock = () => this.session.mode === 'playing' && !this.ui.modalOpen;
+    const params = new URLSearchParams(location.search);
+    if (params.has('play')) this.session.newGame();
+    else this.session.showTitle();
 
     this.running = true;
     this.last = performance.now();
     this.ctx.renderer.setAnimationLoop(() => this.frame());
+  }
+
+  defaultSpawn(): { x: number; z: number; yaw: number } {
+    const sp = this.world.manifest.spawn;
+    return { x: sp ? sp.pos[0] : 0, z: sp ? sp.pos[2] : 0, yaw: sp ? (sp.yawDeg * Math.PI) / 180 : 0 };
   }
 
   /** Move the player; actual placement waits until collision at the target is resident. */
@@ -92,8 +123,13 @@ export class Game {
     const look = this.input.takeLook();
     this.player.yaw -= look.dx * 0.0022;
     this.player.pitch = Math.max(-1.5, Math.min(1.5, this.player.pitch - look.dy * 0.0022));
-    if (this.input.consumePress('KeyH')) this.hud.showDebug = !this.hud.showDebug;
-    this.hud.setLocked(this.input.locked || !!this.input.scripted);
+    for (const code of this.input.drainPresses()) {
+      if (code === 'KeyH') this.hud.showDebug = !this.hud.showDebug;
+      else this.session.onKey(code);
+    }
+    this.hud.setLocked(true);
+    const intent = this.input.intent();
+    const active = this.session.tick(dt, intent.sprint && (intent.forward !== 0 || intent.right !== 0));
 
     // Stream around the player (or the pending spawn point)
     if (this.spawned) {
@@ -105,7 +141,9 @@ export class Game {
 
     if (this.spawned) {
       const collisionReady = this.world.isPhysicsReadyAt(this.player.pos.x, this.player.pos.z);
-      this.player.update(dt, this.input.intent(), collisionReady);
+      const move = active || this.input.scripted ? intent : { ...intent, forward: 0, right: 0, jump: false, up: 0 };
+      if (!this.session.canSprint) move.sprint = false;
+      this.player.update(dt, move, collisionReady);
       this.physics.step(dt);
     }
 
@@ -113,7 +151,6 @@ export class Game {
     const cam = this.ctx.camera;
     cam.position.set(this.player.pos.x, this.player.pos.y + PLAYER.eye, this.player.pos.z);
     cam.rotation.set(this.player.pitch, this.player.yaw, 0);
-    placeSun(this.ctx, cam.position);
 
     const cpuMs = performance.now() - cpu0;
     renderFrame(this.ctx);
@@ -194,7 +231,7 @@ export class Game {
         `street ${loc.street ?? '—'}`,
       ].join('\n'),
     );
-    this.hud.setLabel([loc.place, loc.street].filter(Boolean).join(' — '));
+    this.hud.setLabel(this.hud.showDebug ? [loc.place, loc.street].filter(Boolean).join(' — ') : '');
   }
 }
 

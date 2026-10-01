@@ -52,6 +52,45 @@ export function installDebugApi(game: Game): void {
     setY(y: number) {
       game.player.pos.y = y;
     },
+    // ---- gameplay automation
+    session() {
+      const ss = game.session;
+      return { mode: ss.mode, time: ss.clock.format(), hour: ss.clock.hour, state: JSON.parse(JSON.stringify(ss.state)), job: ss.job, board: ss.board.map((j) => ({ id: j.id, kind: j.kind, title: j.title, reward: j.reward, steps: j.steps })) };
+    },
+    newGame() {
+      game.session.newGame();
+    },
+    setHour(h: number) {
+      const c = game.session.clock;
+      c.minutes = c.day * 1440 + h * 60;
+    },
+    place(id: string) {
+      const p = game.places.get(id);
+      return p ? { id: p.id, name: p.name, stand: p.stand, profile: p.profile.key } : null;
+    },
+    /** Accept a board job by index. */
+    acceptJob(i = 0) {
+      const j = game.session.board[i];
+      if (!j) return false;
+      (document.querySelector(`[data-ui="accept-${j.id}"]`) as HTMLButtonElement | null)?.click();
+      if (!game.session.job) {
+        game.session.openPhone('jobs');
+        (document.querySelector(`[data-ui="accept-${j.id}"]`) as HTMLButtonElement | null)?.click();
+      }
+      return !!game.session.job;
+    },
+    /** Open a place's card as if the player pressed E at its door. */
+    openPlace(id: string) {
+      const p = game.places.get(id);
+      if (p) game.session.openPlace(p);
+      return !!p;
+    },
+    click(uiId: string) {
+      const b = document.querySelector(`[data-ui="${uiId}"]`) as HTMLButtonElement | null;
+      if (!b || b.disabled) return false;
+      b.click();
+      return true;
+    },
     resetPerf() {
       game.perf.reset();
     },

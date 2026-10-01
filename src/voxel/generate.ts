@@ -174,6 +174,21 @@ export function generateChunk(data: ChunkData): GeneratedChunk {
   // 6. Buildings
   for (const p of plans) buildStructure(vol, p, cls, x0, z0);
 
+  // 6b. Business entrances: a door cut into the facade and a lantern above it
+  for (const pl of data.places ?? []) {
+    if (!pl.door) continue;
+    const [wx, wz] = pl.door.wall;
+    const [nx, nz] = pl.door.normal;
+    const cx = Math.floor(wx - nx * 0.5), cz = Math.floor(wz - nz * 0.5);
+    const owner = plans.find((p) => p.cells.has(cx - p.bx0 + (cz - p.bz0) * p.w) && cx >= p.bx0 && cz >= p.bz0 && cx < p.bx0 + p.w);
+    if (!owner) continue;
+    const ox = Math.floor(wx + nx * 0.5), oz = Math.floor(wz + nz * 0.5);
+    vol.set(cx, owner.gy, cz, B.wood_door!, true);
+    vol.set(cx, owner.gy + 1, cz, B.wood_door!, true);
+    vol.set(cx, owner.gy + 2, cz, B.trim_dark!, true);
+    vol.setIfEmpty(ox, owner.gy + 2, oz, B.lamp! | SLAB, true);
+  }
+
   // 7. Nature and street furniture
   const stats = { buildings: plans.length, trees: 0, lamps: 0 };
   decorate(vol, terrain, surface, cls, x0, z0, stats, data);

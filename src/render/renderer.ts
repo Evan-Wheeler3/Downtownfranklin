@@ -2,6 +2,7 @@ import * as THREE from 'three/webgpu';
 import { float, fog, hash, length, mix, pass, saturation, screenUV, smoothstep, time, uniform, vec3 } from 'three/tsl';
 import { bloom } from 'three/addons/tsl/display/BloomNode.js';
 import { godrays } from 'three/addons/tsl/display/GodraysNode.js';
+import type { Atmosphere } from '../sim/sky';
 import { createClouds, createHazeFog, createSky, skyUniforms } from './voxelMaterials';
 
 export interface RenderContext {
@@ -163,4 +164,22 @@ export function renderFrame(ctx: RenderContext): void {
   }
   if (ctx.pipeline) ctx.pipeline.render();
   else ctx.renderer.render(ctx.scene, ctx.camera);
+}
+
+/** Apply a time-of-day atmosphere (from sim/sky.ts) to lights, sky uniforms and exposure. */
+export function applyAtmosphere(ctx: RenderContext, a: Atmosphere, focus: THREE.Vector3): void {
+  ctx.sun.color.setHex(a.lightColor);
+  ctx.sun.intensity = a.lightI;
+  ctx.hemi.color.setHex(a.hemiSky);
+  ctx.hemi.groundColor.setHex(a.hemiGround);
+  ctx.hemi.intensity = a.hemiI;
+  skyUniforms.zenith.value.setHex(a.zenith);
+  skyUniforms.horizon.value.setHex(a.horizon);
+  skyUniforms.haze.value.setHex(a.haze);
+  skyUniforms.sunColor.value.setHex(a.lightColor);
+  skyUniforms.fogDensity.value = a.fog;
+  skyUniforms.night.value = a.night;
+  ctx.renderer.toneMappingExposure = a.exposure;
+  (ctx.scene.background as THREE.Color).setHex(a.horizon);
+  placeSun(ctx, focus, a.lightAz, a.lightEl);
 }

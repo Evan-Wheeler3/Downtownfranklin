@@ -3,6 +3,8 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: 'tests/e2e',
   timeout: 300_000,
+  // One software-rendered browser at a time: parallel SwiftShader instances starve each other's frames.
+  workers: 1,
   expect: { timeout: 60_000 },
   outputDir: 'test-results',
   reporter: [['list']],
@@ -19,5 +21,7 @@ export default defineConfig({
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: true,
     timeout: 300_000,
+  // One software-rendered browser at a time: parallel SwiftShader instances starve each other's frames.
+  workers: 1,
   },
 });

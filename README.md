@@ -1,14 +1,15 @@
 # Downtown Franklin
 
-A first-person life simulator set in a geographically grounded recreation of historic downtown
-Franklin, Tennessee — built in the browser with TypeScript, three.js (WebGPU with WebGL2 fallback)
-and Rapier physics. The street grid, building footprints and terrain come from open geographic data
-(OpenStreetMap/Overture Maps, Microsoft building footprints, USDOT NAD addresses, USGS 3DEP lidar DEM),
-processed by a provenance-tracking pipeline. Gameplay content layered on top is fictional and labelled as such.
+A cozy first-person RPG through a hand-painted voxel town, laid out on the real street grid of downtown
+Franklin, Tennessee — built in the browser with TypeScript, three.js (WebGPU with WebGL2 fallback, TSL
+shaders) and Rapier physics. Run errands and deliveries for real downtown businesses, buy coffee and
+pastries, watch golden hour turn into a lantern-lit night. Street layout, footprints and terrain come
+from open data (OpenStreetMap/Overture Maps, Microsoft footprints, USDOT NAD, USGS 3DEP lidar); all
+gameplay content (stock, prices, hours, jobs) is fictional.
 
 ```bash
 npm install
-npm run dev        # http://127.0.0.1:5173 — click to look, WASD to walk, Shift to run, F to fly
+npm run dev        # http://127.0.0.1:5173 — Begin, click to look, WASD walk, Shift run, E interact, Tab phone, Esc pause
 ```
 
 - Project state: [`docs/STATUS.md`](docs/STATUS.md) · plan: [`docs/ROADMAP.md`](docs/ROADMAP.md)
