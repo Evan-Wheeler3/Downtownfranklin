@@ -2,7 +2,7 @@ import { LocalProjection } from '../core/geo';
 import { initRapier, PhysicsWorld } from '../physics/physics';
 import { PLAYER, PlayerController } from '../player/controller';
 import { InputState } from '../player/input';
-import { createRenderContext, placeSun, type RenderContext } from '../render/renderer';
+import { createRenderContext, placeSun, renderFrame, type RenderContext } from '../render/renderer';
 import { Hud } from '../ui/hud';
 import { World } from '../world/world';
 import { FrameStats } from './perf';
@@ -38,6 +38,7 @@ export class Game {
     this.ctx = await createRenderContext(this.opts.container, {
       forceWebGL: this.opts.forceWebGL,
       lowQuality: this.opts.lowQuality,
+      post: new URLSearchParams(location.search).get('post') !== '0',
     });
     const R = await initRapier();
     this.physics = new PhysicsWorld(R);
@@ -112,10 +113,10 @@ export class Game {
     const cam = this.ctx.camera;
     cam.position.set(this.player.pos.x, this.player.pos.y + PLAYER.eye, this.player.pos.z);
     cam.rotation.set(this.player.pitch, this.player.yaw, 0);
-    placeSun(this.ctx, cam.position, 215, 48);
+    placeSun(this.ctx, cam.position);
 
     const cpuMs = performance.now() - cpu0;
-    this.ctx.renderer.render(this.ctx.scene, cam);
+    renderFrame(this.ctx);
     this.perf.push(rawMs, cpuMs);
 
     this.labelTimer -= dt;

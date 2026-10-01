@@ -35,7 +35,16 @@ recorded in STATUS.md for each milestone.
 | M2.6 | Buildings/roads visually align (inspection from street + aerial) | `artifacts/spawn.png`, `artifacts/aerial.png` |
 | M2.7 | Perf measured: CPU ms/frame, chunk build ms, draw calls, triangles | `scripts/perf.mjs` output in STATUS |
 
-## M3 — Street-level fidelity + geo verification (planned)
+## M3-V — Stylised voxel world ✅
+| # | Criterion | Evidence |
+|---|---|---|
+| V.1 | Downtown grid axis-aligned; geometry still matches source after rotation | geo-verify passes; `geo.test.ts` rotation test |
+| V.2 | Voxel meshes: outward faces, greedy merging, AO, slabs, glass culling | `voxel.test.ts` |
+| V.3 | Deterministic chunk generation incl. buildings, trees, lamps, glass | `chunkBuild.test.ts` |
+| V.4 | Walls block, terrain walkable, half-slab steps climbable | `physics.test.ts`, e2e |
+| V.5 | Visual review: aerial + street-level screenshots read as "clean, artsy voxel town" | STATUS session 2 |
+
+## M3 — Street-level fidelity + geo verification (superseded by M3-V)
 - M3.1 Geo-verify report: ≥ 99 % of validated core footprints present in world chunks, centroid Δ < 0.05 m, area Δ < 1 %; every HERO resolved.
 - M3.2 Chunk build off main thread: max main-thread stall from streaming < 4 ms (measured).
 - M3.3 Kerbs render and collide; player steps up/down in e2e.

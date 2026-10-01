@@ -19,7 +19,7 @@ export interface WorldManifest {
   schemaVersion: number;
   pipelineVersion: string;
   generatedUtc: string;
-  origin: { lon: number; lat: number; elevationDatum: number };
+  origin: { lon: number; lat: number; elevationDatum: number; gridRotationDeg?: number };
   projection: string;
   axes: string;
   chunkSize: number;

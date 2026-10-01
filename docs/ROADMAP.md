@@ -8,32 +8,30 @@ Vertical milestones; each must leave the game runnable and pass its acceptance c
 | M0 | Foundation | ✅ done | repo, docs, stack decision, skills/agents, Gauntlet, app scaffold, CI-able tests |
 | M1 | Geographic data pipeline | ✅ done | Overture + USGS fetch, normalize, validate (incl. NAD address check), game coords, chunks, road graph, business seeds, source ledger |
 | M2 | Geographic world slice | ✅ done (perf follow-ups in M3) | streamed downtown from data, first-person walking, Rapier collision (terrain, buildings, kerbs), LOD rings, spawn on Main St, HUD with lat/lon + street, e2e tests |
-| **M3** | **Street-level fidelity + geo verification** | 🟡 in progress (M3.1, M3.2 done) | see below |
-| M4 | Time, sky and weather core | planned | sim clock/date, sun position for Franklin lat/lon, day/night lighting, weather state machine (rain/overcast/clear), street lights at night; all systems subscribe to the clock |
-| M5 | Business framework + Tier-1 interiors | planned | business registry from `businesses.json` + authored overrides, category→interaction profiles, FICTIONAL default hours, open/closed signage, enter/exit portals, streamable Tier-1 interior kit |
-| M6 | Economy + inventory + save v1 | planned | wallet, prices, transactions, inventory, buy/order/eat/drink, versioned save with migrations (player, money, inventory, time) |
-| M7 | Tasks/jobs/quests framework | planned | data-driven quest graph (steps, conditions, rewards), job board, first jobs: deliveries/errands between real addresses; waypoints |
-| M8 | NPC simulation (tiers) | planned | pedestrians on a sidewalk graph, identity/archetype/home/work/schedule, near/mid/far simulation tiers, crowd LOD, interaction stub (talk) |
-| M9 | Traffic | planned | vehicles on `roads/graph.json` with one-way/turn restrictions, intersections/signals from point data, parking, traffic LOD |
-| M10 | Entertainment + hero interiors | planned | Franklin Theatre Tier-3 (fictionalised interior, labelled), event schedules (FICTIONAL unless sourced), tickets, movies/live music gameplay, event NPC behaviour |
-| M11 | Housing | planned | rentals/ownership (game state separate from real-world property snapshots), moving, furnishing, access permissions |
-| M12 | Social + relationships | planned | relationship model, dialogue system, social tasks |
-| M13 | Visual fidelity pass 2 | planned | authored materials, vegetation, props, vehicles/pedestrian art, atmosphere, weather VFX, hero exteriors |
-| M14 | Performance hardening | planned | worker-based chunk building, binary chunks, instancing, GPU profiling on real hardware, memory budgets |
-| M15 | Expanded world | planned | fetch/stream beyond downtown (Five Points, Hincheyville, Pinkerton Park, Harpeth riverfront) |
-| M16+ | Deeper simulation, polish, release readiness | planned | balancing, accessibility, settings, onboarding, packaging |
+| M3 | Street-level fidelity + geo verification | ⛔ superseded by M3-V (D-021) | geo-verify report and worker builds kept |
+| **M3-V** | **Stylised voxel world overhaul** | ✅ done (session 2) | rotated axis-aligned grid, voxel generator + greedy AO mesher, TSL block shading, sky/clouds/bloom, voxel collision |
+| **M4** | **Look & feel II: time of day + atmosphere** | ⏭ next | sim clock, sun path, golden hour/dusk/night palettes, window + lamp glow at night, weather (rain/overcast), ambient sound hooks |
+| M5 | Living town I: places you can enter | planned | shop/house interiors as voxel rooms generated per archetype (FICTIONAL, art-directed), door portals, signage from place names, business categories → interaction profiles |
+| M6 | RPG core: player, inventory, money, save v1 | planned | character state, wallet, inventory, buy/sell/eat/drink, versioned save/migrations |
+| M7 | Quests & jobs | planned | data-driven quest graph, job board, errands/deliveries across town, waypoints, journal UI |
+| M8 | Townsfolk (NPCs) | planned | voxel-styled characters, schedules, homes/workplaces, dialogue, relationship meters, crowd LOD |
+| M9 | Traffic & life on the streets | planned | voxel cars on the road graph, signals, parking; birds, ambient props |
+| M10 | Entertainment & events | planned | theatre shows, live music, festivals, tickets |
+| M11 | Housing | planned | rent/buy, decorate (block placement inside your home), access |
+| M12 | Polish & performance | planned | binary chunks, instancing, far-LOD impostors, GPU profiling on real hardware, settings, accessibility |
+| M13+ | Expansion & release | planned | more neighbourhoods, onboarding, packaging |
 
-## M3 — Street-level fidelity + geo verification (next)
-1. ✅ **Geo-verification report** (`scripts/geo_verify.py` or pipeline stage): overlay of generated chunk geometry vs validated source (footprint area/centroid deltas, road polyline deltas, HERO presence), output an SVG/PNG map + JSON to `artifacts/`; wire into Gauntlet `major`.
-2. ✅ **Worker chunk building** (+ heightfield terrain collision; apply max 29.5 → 7.8 ms): move `populate()` geometry generation into a Web Worker (transferable typed arrays) to remove the 12–37 ms main-thread hitches; measure before/after with `scripts/perf.mjs`.
-3. **Terrain skirts** at LOD seams; **kerbs as geometry**: raised sidewalk edge (0.15 m) along facade-derived sidewalks; collider included; verify autostep in e2e.
-4. **Street markings & crossings**: centre lines from one-way/class, crosswalks at `crossing` points, stop bars at `traffic_signals`.
-5. **Street furniture from point data** (signals, bus stops, bollards) as instanced meshes; trees from land cover (INFERRED placement) only where sourced.
-6. **Pitched roofs** where `roof_shape` is known; parapets for commercial core buildings.
-7. **Hero exterior pass 1**: Franklin Theatre marquee/sign volume (authored, labelled as stylised).
-8. Resolve `pending_verification` items where evidence allows (courthouse footprint).
+## M4 — Look & feel II (next)
+1. `src/sim/clock.ts`: game time (configurable day length), date; drives sun azimuth/elevation and `LOOK` presets (dawn, day, golden hour, dusk, night) interpolated.
+2. Night: emissive window glow (per-building lit-window hash, warmer interiors), lamps brighter, bloom up, stars/moon in the sky shader.
+3. Weather state machine: clear / overcast / rain (particle rain, wet darkened materials, puddle sheen), fog density.
+4. Atmosphere details: chimney smoke voxels, drifting leaves, birds.
+5. Acceptance: screenshot set at 4 times of day from 3 viewpoints; perf capture unchanged ±10 %.
 
 ## Known debt
+- Voxel chunk build ~200 ms warm per chunk in a worker (gen ≈ mesh); first load of ~75 chunks takes several seconds. Optimise generator rasterisation + mesher y-range culling.
+- ~1.2–1.8 M triangles resident at street level; add far-LOD (2 m blocks) or impostors in M12.
+- Diagonal (off-grid) streets render as stair-stepped voxels by design.
 - 5 MB JS bundle (three/webgpu + inlined Rapier WASM) → code-split in M14.
 - Sidewalk/road overlap at intersections is a painter's-order hack (polygon offset) → proper junction polygons in M3/M13.
 - Rendering FPS never measured on real GPU hardware (environment has none).

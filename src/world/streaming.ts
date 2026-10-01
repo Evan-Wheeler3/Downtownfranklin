@@ -16,7 +16,7 @@ export interface StreamingRadii {
   hysteresis: number;
 }
 
-export const DEFAULT_RADII: StreamingRadii = { render: 900, detail: 320, physics: 160, hysteresis: 48 };
+export const DEFAULT_RADII: StreamingRadii = { render: 560, detail: 280, physics: 96, hysteresis: 40 };
 
 export interface ChunkWant {
   id: string;

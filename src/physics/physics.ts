@@ -55,6 +55,12 @@ export class PhysicsWorld {
     this.track(owner, this.world.createCollider(desc));
   }
 
+  /** Static 1 m voxel collider from world cell coordinates (x,y,z triples). */
+  addVoxels(owner: string, cells: Int32Array): void {
+    if (!cells.length) return;
+    this.track(owner, this.world.createCollider(this.R.ColliderDesc.voxels(cells, { x: 1, y: 1, z: 1 })));
+  }
+
   private track(owner: string, col: RAPIER.Collider): void {
     let list = this.owners.get(owner);
     if (!list) this.owners.set(owner, (list = []));

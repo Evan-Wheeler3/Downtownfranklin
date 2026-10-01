@@ -14,6 +14,10 @@ ORIGIN_LON, ORIGIN_LAT = -86.8690, 35.9250
 PROJ_LOCAL = (f"+proj=tmerc +lat_0={ORIGIN_LAT} +lon_0={ORIGIN_LON} +k=1 +x_0=0 +y_0=0 "
               "+ellps=GRS80 +units=m +no_defs")
 
+# Rotation applied after projection so the downtown street grid is axis-aligned (voxel world).
+# Measured: length-weighted bearing histogram of core streets peaks at 59 deg (mod 90). D-022.
+GRID_ROTATION_DEG = -59.0
+
 # Core (ORDINARY-tier) area: see docs/research and SOURCE_LEDGER. Buildings outside it
 # are BACKGROUND tier. (xmin, ymin, xmax, ymax) WGS84.
 CORE_BBOX = (-86.8770, 35.9190, -86.8580, 35.9290)  # INFERRED, docs/research/franklin-research-2026-09-30.md §1

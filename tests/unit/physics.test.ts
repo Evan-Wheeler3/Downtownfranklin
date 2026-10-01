@@ -1,9 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { initRapier, PhysicsWorld, type Rapier } from '../../src/physics/physics';
 import { PlayerController, type MoveIntent } from '../../src/player/controller';
-import { appendBuilding, newBuildingMeshes } from '../../src/world/geometry';
 import { decodeTerrain, sampleTerrain, terrainMeshArrays } from '../../src/world/terrain';
-import type { BuildingRecord } from '../../src/world/types';
 import { chunkAt, loadManifest } from './helpers';
 
 let R: Rapier;
@@ -54,15 +52,10 @@ describe('collision', () => {
     // flat ground 200x200
     const g = new Float32Array([-100, 0, -100, 100, 0, -100, 100, 0, 100, -100, 0, 100]);
     phys.addStaticTriMesh('ground', { positions: g, indices: new Uint32Array([0, 3, 1, 1, 3, 2]) });
-    // a building whose south face is at z = -10 (footprint z in [-20, -10])
-    const b: BuildingRecord = {
-      id: 'wall', tier: 'ORDINARY', heightConf: 'TEST', base: 0, ground: 0, height: 8, cls: 'commercial',
-      footprint: [[-10, -10], [10, -10], [10, -20], [-10, -20]],
-    };
-    const bm = newBuildingMeshes();
-    appendBuilding(bm, b);
-    for (const mb of [bm.upper, bm.storefront, bm.roof])
-      if (mb.indices.length) phys.addStaticTriMesh('b', { positions: new Float32Array(mb.positions), indices: new Uint32Array(mb.indices) });
+    // a voxel wall whose south face is at z = -10 (cells z in [-20, -10), 8 high)
+    const wall: number[] = [];
+    for (let x = -10; x < 10; x++) for (let y = 0; y < 8; y++) for (let z = -20; z < -10; z++) wall.push(x, y, z);
+    phys.addVoxels('b', new Int32Array(wall));
     // a 0.15 m kerb slab to the east: x in [20, 40]
     const k = new Float32Array([20, 0.15, -30, 40, 0.15, -30, 40, 0.15, 30, 20, 0.15, 30, 20, 0, -30, 20, 0, 30]);
     phys.addStaticTriMesh('kerb', { positions: k, indices: new Uint32Array([0, 3, 1, 1, 3, 2, 4, 5, 0, 0, 5, 3]) });

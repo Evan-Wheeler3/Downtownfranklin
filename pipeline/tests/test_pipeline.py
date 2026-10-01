@@ -41,7 +41,10 @@ def test_projection_origin_and_axes():
     x, z = build_world.lonlat_to_game(config.ORIGIN_LON, config.ORIGIN_LAT)
     assert abs(x) < 1e-6 and abs(z) < 1e-6
     x, z = build_world.lonlat_to_game(config.ORIGIN_LON, config.ORIGIN_LAT + 0.001)
-    assert z < -100 and abs(x) < 0.5  # north is -z
+    e, n = build_world.game_to_local(x, z)
+    assert n > 100 and abs(e) < 0.5  # inverse rotation recovers north
+    a = math.degrees(math.atan2(z, x))
+    assert abs(a - (-90 + config.GRID_ROTATION_DEG)) < 0.5
 
 
 def test_stable_hash_matches_runtime_fnv1a():
@@ -58,11 +61,13 @@ def test_validated_outputs_and_report():
 
 
 def test_world_manifest_bounds_cover_core():
+    from shapely.geometry import Polygon, box
     m = json.loads((WORLD_OUT / "manifest.json").read_text())
-    xs = [p[0] for p in m["core"]]
-    zs = [p[1] for p in m["core"]]
+    core = Polygon(m["core"])
     b = m["bounds"]
-    assert b["minX"] < min(xs) and b["maxX"] > max(xs) and b["minZ"] < min(zs) and b["maxZ"] > max(zs)
+    inside = core.intersection(box(b["minX"], b["minZ"], b["maxX"], b["maxZ"])).area / core.area
+    # The rotated (axis-aligned) world rectangle must contain nearly all of the downtown core.
+    assert inside > 0.95
     assert m["spawn"] and math.isfinite(m["spawn"]["yawDeg"])
 
 

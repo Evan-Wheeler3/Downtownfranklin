@@ -1,7 +1,7 @@
 import * as THREE from 'three/webgpu';
 import type { PhysicsWorld } from '../physics/physics';
-import { groundTexture, roofTexture, storefrontTexture, upperFacadeTexture } from '../render/textures';
-import { buildChunk, type BuiltChunk, type MeshArrays, type MeshName } from './chunkBuild';
+import { createVoxelMaterials } from '../render/voxelMaterials';
+import { buildChunk, type MeshArrays, type MeshName } from './chunkBuild';
 import { StreamingPolicy, type StreamingRadii, DEFAULT_RADII } from './streaming';
 import { sampleTerrain, type DecodedTerrain } from './terrain';
 import { WORLD_SCHEMA_VERSION, type ChunkData, type WorldManifest } from './types';
@@ -14,7 +14,7 @@ interface ResidentChunk {
   group: THREE.Group;
   lod: 0 | 1;
   physics: boolean;
-  collision: BuiltChunk['collision'];
+  voxels: Int32Array;
 }
 
 export interface WorldStats {
@@ -33,21 +33,12 @@ export interface WorldStats {
   workers: number;
 }
 
-const MATERIAL_FOR: Record<MeshName, string> = {
-  terrain: 'terrain',
-  'buildings.upper': 'upper',
-  'buildings.storefront': 'storefront',
-  'buildings.roof': 'roof',
-  roads: 'road',
-  areas: 'area',
-};
 
 function toGeometry(m: MeshArrays): THREE.BufferGeometry {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.BufferAttribute(m.positions, 3));
   g.setAttribute('normal', new THREE.BufferAttribute(m.normals, 3));
-  if (m.colors) g.setAttribute('color', new THREE.BufferAttribute(m.colors, 3));
-  g.setAttribute('uv', new THREE.BufferAttribute(m.uvs, 2));
+  g.setAttribute('color', new THREE.BufferAttribute(m.colors, 3));
   g.setIndex(new THREE.BufferAttribute(m.indices, 1));
   g.computeBoundingSphere();
   return g;
@@ -93,18 +84,7 @@ export class World {
     this.pool = opts.workers !== false && typeof Worker !== 'undefined' ? new ChunkWorkerPool() : null;
     this.stats.workers = this.pool?.size ?? 0;
     this.maxInflight = Math.max(4, (this.pool?.size ?? 1) * 3);
-    this.materials = {
-      terrain: new THREE.MeshStandardMaterial({ color: 0x7d9a5b, map: groundTexture(), roughness: 0.95 }),
-      upper: new THREE.MeshStandardMaterial({ vertexColors: true, map: upperFacadeTexture(), roughness: 0.85 }),
-      storefront: new THREE.MeshStandardMaterial({ vertexColors: true, map: storefrontTexture(), roughness: 0.6 }),
-      roof: new THREE.MeshStandardMaterial({ vertexColors: true, map: roofTexture(), roughness: 0.9 }),
-      road: new THREE.MeshStandardMaterial({
-        vertexColors: true, roughness: 0.92, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
-      }),
-      area: new THREE.MeshStandardMaterial({
-        vertexColors: true, roughness: 0.8, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1,
-      }),
-    };
+    this.materials = createVoxelMaterials();
   }
 
   static async load(baseUrl: string, physics: PhysicsWorld, radii?: StreamingRadii, opts?: { workers?: boolean }): Promise<World> {
@@ -240,18 +220,18 @@ export class World {
 
   private apply(id: string, lod: 0 | 1, r: ChunkResult, physics: boolean): void {
     const old = this.resident.get(id);
-    const n = r.data.terrain.n;
     const terrain: DecodedTerrain = {
-      ox: r.data.terrain.origin[0], oz: r.data.terrain.origin[1], spacing: r.data.terrain.spacing, n, heights: r.built.heights,
+      ox: r.built.hfOrigin[0], oz: r.built.hfOrigin[1], spacing: 1, n: r.built.hfN, heights: r.built.heights,
     };
     const group = new THREE.Group();
     group.name = id;
     for (const [name, arrays] of Object.entries(r.built.meshes) as [MeshName, MeshArrays | undefined][]) {
       if (!arrays) continue;
-      const mesh = new THREE.Mesh(toGeometry(arrays), this.materials[MATERIAL_FOR[name]]!);
+      const mesh = new THREE.Mesh(toGeometry(arrays), this.materials[name]!);
       mesh.name = name;
-      mesh.receiveShadow = true;
-      mesh.castShadow = lod === 0 && name.startsWith('buildings');
+      mesh.receiveShadow = name !== 'emissive';
+      mesh.castShadow = name === 'opaque';
+      if (name === 'water') mesh.renderOrder = 2;
       group.add(mesh);
     }
     if (old) {
@@ -259,7 +239,7 @@ export class World {
       this.disposeGroup(old.group);
       this.root.remove(old.group);
     }
-    const c: ResidentChunk = { id, data: r.data, terrain, group, lod, physics: false, collision: r.built.collision };
+    const c: ResidentChunk = { id, data: r.data, terrain, group, lod, physics: false, voxels: r.built.voxels };
     this.root.add(group);
     this.resident.set(id, c);
     if (physics && lod === 0) this.setPhysics(c, true);
@@ -271,7 +251,7 @@ export class World {
     if (on) {
       if (c.lod !== 0) return; // caller requests LOD0 first
       this.physics.addHeightfield(c.id, c.terrain);
-      for (const m of c.collision) this.physics.addStaticTriMesh(c.id, m);
+      if (c.voxels.length) this.physics.addVoxels(c.id, c.voxels);
     } else {
       this.physics.removeOwner(c.id);
     }

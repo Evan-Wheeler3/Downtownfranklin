@@ -1,7 +1,9 @@
 # Downtown Franklin — project guide for Claude
 
-First-person life simulator set in a geographically grounded recreation of historic
-downtown Franklin, Tennessee. Browser-based (TypeScript, three.js WebGPU/WebGL2, Rapier).
+First-person RPG / life sim through a beautifully shaded, stylised voxel town ("almost
+Minecraft — detailed but clean and artsy"), laid out on the real street grid of downtown
+Franklin, Tennessee. Geography is the skeleton; visuals and gameplay are art-directed (D-021).
+Browser-based (TypeScript, three.js WebGPU/WebGL2 + TSL, Rapier).
 Long-running, multi-session project: **the repository is the memory**. Read
 `docs/STATUS.md` first in every new session, then `docs/ROADMAP.md` for the next milestone.
 
@@ -24,7 +26,7 @@ node scripts/shot.mjs out.png "<js>"   # screenshot a running preview (see skill
 node scripts/perf.mjs                  # scripted perf capture -> artifacts/perf-*.json
 ```
 
-URL params: `?renderer=webgl` (force WebGL2), `?quality=low` (no shadows, 1x DPR), `?nohelp`.
+URL params: `?renderer=webgl` (force WebGL2), `?quality=low` (no shadows/post, 1x DPR), `?post=0`, `?debug` (HUD stats; H toggles), `?nohelp`.
 Automation surface: `window.__franklin` (src/game/debugApi.ts).
 
 ## Architecture (see docs/ARCHITECTURE.md)
@@ -38,14 +40,19 @@ SOURCE → data/raw → data/normalized → data/validated → public/world (gam
 - `data/authored/` — hand-authored overlays (hero locations, spawn, overrides). Reference
   source records by id; never raw coordinates unless the entry says why.
 - `public/world/` — committed pipeline output consumed by the game (schema in `src/world/types.ts`).
-- `src/core` math/hash/geo · `src/world` streaming, chunk meshes · `src/physics` Rapier ·
+- `src/voxel` block palette, volume, chunk generator (buildings/streets/nature), greedy AO mesher ·
+  `src/render/voxelMaterials.ts` TSL block/glass/water shaders, sky, clouds ·
+- `src/core` math/hash/geo · `src/world` streaming + worker chunk builds · `src/physics` Rapier ·
   `src/player` controller/input · `src/render` renderer/textures · `src/game` loop, perf, debug API · `src/ui` HUD.
 
 ## Rules (non-negotiable)
 
-1. **Never fabricate facts.** Every real-world claim is VERIFIED / INFERRED / REFERENCE ONLY /
-   UNKNOWN and lives in `docs/SOURCE_LEDGER.md` or in data provenance fields.
-2. **No geographic facts in game code.** Coordinates, names, hours, addresses come from data.
+1. **Art direction first.** The look is stylised voxel; tune it in data/`LOOK`/palette, and judge
+   changes by screenshots (street level + aerial). Clean > busy; vary colour in the shader, not
+   the palette, so greedy meshing keeps triangle counts low.
+2. **Never fabricate facts** in docs/data: real-world claims keep their VERIFIED / INFERRED / UNKNOWN
+   labels (`docs/SOURCE_LEDGER.md`); invented content is simply fiction, labelled FICTIONAL in data.
+   Layout facts (coordinates, names) come from the pipeline, not from game code.
 3. Keep pipeline layers separate; runtime only reads `public/world`. Bump
    `SCHEMA_VERSION` (build_world.py) and `WORLD_SCHEMA_VERSION` (types.ts) together.
 4. Invented gameplay content (fictional hours, interiors, NPCs) is labelled FICTIONAL in data.

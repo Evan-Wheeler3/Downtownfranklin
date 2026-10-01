@@ -41,9 +41,21 @@ PIPELINE_VERSION = "0.1.0"
 _to_local = Transformer.from_crs("EPSG:4326", C.PROJ_LOCAL, always_xy=True)
 
 
+_ROT = math.radians(C.GRID_ROTATION_DEG)
+_COS, _SIN = math.cos(_ROT), math.sin(_ROT)
+
+
 def lonlat_to_game(lon, lat):
+    """Local tmerc (east, -north), then rotated by GRID_ROTATION_DEG so the downtown grid is axis-aligned."""
     e, n = _to_local.transform(lon, lat)
-    return e, -n
+    x, z = e, -n
+    return x * _COS - z * _SIN, x * _SIN + z * _COS
+
+
+def game_to_local(x, z):
+    """Inverse rotation: game (x, z) -> (east, north) in the local tmerc."""
+    lx, lz = x * _COS + z * _SIN, -x * _SIN + z * _COS
+    return lx, -lz
 
 
 def _geom_to_game(g):
@@ -64,7 +76,8 @@ class Dem:
 
     def sample(self, xs, zs) -> np.ndarray:
         xs, zs = np.asarray(xs, float), np.asarray(zs, float)
-        e, n = self.game_to_utm.transform(xs, -zs)
+        le, ln = game_to_local(xs, zs)
+        e, n = self.game_to_utm.transform(le, ln)
         col, row = self.inv * (np.asarray(e), np.asarray(n))
         col, row = np.asarray(col) - 0.5, np.asarray(row) - 0.5
         h, w = self.data.shape
@@ -163,12 +176,20 @@ def main() -> int:
             hero_buildings[bid] = h
 
     datum = float(np.round(dem.sample([0.0], [0.0])[0]))
-    x0, z0 = lonlat_to_game(C.FETCH_BBOX[0], C.FETCH_BBOX[3])  # NW corner
-    x1, z1 = lonlat_to_game(C.FETCH_BBOX[2], C.FETCH_BBOX[1])  # SE corner
-    # Inset the playable bounds so every chunk has DEM coverage (bbox corners are curved in tmerc).
-    bounds = {"minX": math.ceil(max(x0, lonlat_to_game(C.FETCH_BBOX[0], C.FETCH_BBOX[1])[0])),
-              "maxX": math.floor(min(x1, lonlat_to_game(C.FETCH_BBOX[2], C.FETCH_BBOX[3])[0])),
-              "minZ": math.ceil(z0), "maxZ": math.floor(z1)}
+    # Playable bounds: the largest square (centred on the core) inside the rotated fetch area,
+    # so every chunk has source + DEM coverage.
+    fetch_poly = _geom_to_game(box(*C.FETCH_BBOX).segmentize(0.0005))
+    core_c = _geom_to_game(box(*C.CORE_BBOX)).centroid
+    r = [core_c.x - 50, core_c.y - 50, core_c.x + 50, core_c.y + 50]
+    grew = True
+    while grew:  # grow each side in 10 m steps while the rectangle stays inside the fetch area
+        grew = False
+        for i, d in ((0, -10), (1, -10), (2, 10), (3, 10)):
+            t = list(r)
+            t[i] += d
+            if fetch_poly.contains(box(*t)):
+                r, grew = t, True
+    bounds = {"minX": math.ceil(r[0]), "maxX": math.floor(r[2]), "minZ": math.ceil(r[1]), "maxZ": math.floor(r[3])}
     world_box = box(bounds["minX"], bounds["minZ"], bounds["maxX"], bounds["maxZ"])
     core_poly = _geom_to_game(box(*C.CORE_BBOX))
 
@@ -424,7 +445,8 @@ def main() -> int:
     manifest = {
         "schemaVersion": SCHEMA_VERSION, "pipelineVersion": PIPELINE_VERSION,
         "generatedUtc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-        "origin": {"lon": C.ORIGIN_LON, "lat": C.ORIGIN_LAT, "elevationDatum": datum},
+        "origin": {"lon": C.ORIGIN_LON, "lat": C.ORIGIN_LAT, "elevationDatum": datum,
+                   "gridRotationDeg": C.GRID_ROTATION_DEG},
         "projection": C.PROJ_LOCAL,
         "axes": "x=east m; y=up m (NAVD88 elevation minus datum); z=south m",
         "chunkSize": C.CHUNK_SIZE_M, "bounds": bounds,

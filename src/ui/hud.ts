@@ -5,7 +5,7 @@ export class Hud {
   private label: HTMLDivElement;
   private help: HTMLDivElement;
   private crosshair: HTMLDivElement;
-  showDebug = true;
+  showDebug = new URLSearchParams(location.search).has('debug');
 
   constructor(parent: HTMLElement, attribution: string[]) {
     this.root = document.createElement('div');

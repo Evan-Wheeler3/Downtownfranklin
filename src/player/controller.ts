@@ -20,7 +20,7 @@ export const PLAYER = {
   flySpeed: 25,
   jumpSpeed: 4.2,
   gravity: 9.81,
-  stepHeight: 0.35, // curbs
+  stepHeight: 0.55, // half-slab terrain steps
   maxSlopeDeg: 50,
 };
 

@@ -66,3 +66,18 @@ Format: ID · date · decision · context/alternatives · consequences. Newest l
 
 ### D-020 · 2026-09-30 · Address matching must agree on directional and street type
 - Adversarial review found "137 4th Ave S" relocated 335 m to "137 4th Ave N". Matching now requires equal directionals and street types when given; ordinals ("Third") and suite markers ("# 2") normalised. Result: 1,279 consistent / 112 relocated / 157 unmatched.
+
+### D-021 · 2026-10-01 · Direction: stylised voxel RPG town (supersedes the fidelity goal)
+- Product owner direction: the game is an aesthetically pleasing, thoughtfully designed RPG through a town, not an exact recreation. Visual target: "beautifully shaded, almost Minecraft-style world — detailed but clean and artsy".
+- Real geography stays as the **skeleton** (street grid, block layout, building footprints/heights, terrain, place names as seeds); everything visual is art-directed procedural content. Provenance tooling is kept (cheap, useful for seeding), but geographic exactness is no longer an acceptance goal. Fictional content still never masquerades as fact in docs.
+
+### D-022 · 2026-10-01 · World grid rotated −59° so downtown streets are axis-aligned
+- Length-weighted bearing histogram of core streets peaks at 59° (mod 90). Rotation applied in `build_world.lonlat_to_game` and `LocalProjection.toGame` (manifest `origin.gridRotationDeg`); parity tests updated. World bounds = largest axis-aligned rectangle inside the rotated fetch area (97 % of the core; 256 chunks).
+
+### D-023 · 2026-10-01 · Voxel world generated at runtime in workers
+- 1 m blocks + half-slabs (terrain quantised to 0.5 m). `src/voxel/generate.ts` turns chunk data into a volume (terrain columns, rasterised streets/sidewalks/kerbs/lane dashes, parks/parking/water, procedural buildings by archetype — shop/block/house/church/garage — with storefront glass, doors, awnings, sign bands, belt courses, lintels, shutters, parapets, stepped hip roofs, steeples, rooftop units; voxel trees, street trees, lamps, flowers, benches).
+- `src/voxel/mesher.ts`: greedy meshing with Minecraft-style vertex AO; slab tops greedy too; LOD1 drops AO and plants. Surface colour variation lives in the shader (not the palette) so faces merge — this halved triangle counts.
+- Collision: walkable heightfield from the block surface (1 m lattice) + Rapier voxel collider of exposed structure cells (hollow buildings keep it small; measured 30k voxels ≈ 9 ms).
+
+### D-024 · 2026-10-01 · Look: TSL block shader, warm light, gradient sky, bloom
+- Block material = palette colour × baked AO × per-block hash tint × soft bevel computed from world position (reads as blocks even after greedy merging). Glass/water use fresnel toward the sky colour; lamps are emissive and picked up by bloom. Neutral tone mapping, soft (0.72) PCF shadows, warm sun at 235°/38°, warm-ground hemisphere light, distance fog matched to the horizon, blocky clouds. All tunables in `LOOK` (src/render/renderer.ts).

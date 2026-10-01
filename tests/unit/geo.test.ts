@@ -31,11 +31,14 @@ describe('LocalProjection (runtime) vs PROJ (pipeline)', () => {
     }
   });
 
-  it('uses x=east and z=south', () => {
-    const east = proj.toGame(m.origin.lon + 0.001, m.origin.lat);
-    const north = proj.toGame(m.origin.lon, m.origin.lat + 0.001);
+  it('applies the grid rotation (unrotated local axes: x=east, z=south)', () => {
+    const east = proj.toLocal(m.origin.lon + 0.001, m.origin.lat);
+    const north = proj.toLocal(m.origin.lon, m.origin.lat + 0.001);
     expect(east.x).toBeGreaterThan(80);
-    expect(Math.abs(east.z)).toBeLessThan(0.5);
     expect(north.z).toBeLessThan(-100);
+    const r = ((m.origin.gridRotationDeg ?? 0) * Math.PI) / 180;
+    const g = proj.toGame(m.origin.lon + 0.001, m.origin.lat);
+    expect(g.x).toBeCloseTo(east.x * Math.cos(r) - east.z * Math.sin(r), 6);
+    expect(g.z).toBeCloseTo(east.x * Math.sin(r) + east.z * Math.cos(r), 6);
   });
 });

@@ -25,19 +25,32 @@ function meridianArc(phi: number): number {
 export interface GeoOrigin {
   lon: number;
   lat: number;
+  /** Rotation applied after projection so the town grid is axis-aligned (degrees). */
+  gridRotationDeg?: number;
 }
 
 export class LocalProjection {
   private readonly lon0: number;
   private readonly m0: number;
+  private readonly cos: number;
+  private readonly sin: number;
 
   constructor(readonly origin: GeoOrigin) {
     this.lon0 = origin.lon * DEG;
     this.m0 = meridianArc(origin.lat * DEG);
+    const r = (origin.gridRotationDeg ?? 0) * DEG;
+    this.cos = Math.cos(r);
+    this.sin = Math.sin(r);
   }
 
-  /** WGS84/GRS80 lon/lat (degrees) -> game x (east) and z (south), metres. */
+  /** lon/lat -> game x/z (projection, then grid rotation). */
   toGame(lon: number, lat: number): { x: number; z: number } {
+    const p = this.toLocal(lon, lat);
+    return { x: p.x * this.cos - p.z * this.sin, z: p.x * this.sin + p.z * this.cos };
+  }
+
+  /** WGS84/GRS80 lon/lat (degrees) -> unrotated local x (east) and z (south), metres. */
+  toLocal(lon: number, lat: number): { x: number; z: number } {
     const phi = lat * DEG;
     const sin = Math.sin(phi);
     const cos = Math.cos(phi);
@@ -61,17 +74,19 @@ export class LocalProjection {
   }
 
   /** Game x/z (metres) -> lon/lat degrees. */
-  toGeo(x: number, z: number): { lon: number; lat: number } {
+  toGeo(gx: number, gz: number): { lon: number; lat: number } {
+    const x = gx * this.cos + gz * this.sin;
+    const z = -gx * this.sin + gz * this.cos;
     let lon = this.origin.lon + x / (111320 * Math.cos(this.origin.lat * DEG));
     let lat = this.origin.lat - z / 110574;
     for (let i = 0; i < 8; i++) {
-      const p = this.toGame(lon, lat);
+      const p = this.toLocal(lon, lat);
       const ex = x - p.x;
       const ez = z - p.z;
       if (Math.abs(ex) < 1e-6 && Math.abs(ez) < 1e-6) break;
       const h = 1e-7;
-      const px = this.toGame(lon + h, lat);
-      const pz = this.toGame(lon, lat + h);
+      const px = this.toLocal(lon + h, lat);
+      const pz = this.toLocal(lon, lat + h);
       // Jacobian of (x, z) w.r.t. (lon, lat)
       const j11 = (px.x - p.x) / h;
       const j12 = (pz.x - p.x) / h;
