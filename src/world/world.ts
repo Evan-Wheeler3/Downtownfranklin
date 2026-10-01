@@ -39,6 +39,7 @@ function toGeometry(m: MeshArrays): THREE.BufferGeometry {
   g.setAttribute('position', new THREE.BufferAttribute(m.positions, 3));
   g.setAttribute('normal', new THREE.BufferAttribute(m.normals, 3));
   g.setAttribute('color', new THREE.BufferAttribute(m.colors, 3));
+  g.setAttribute('tex', new THREE.BufferAttribute(m.tex, 1));
   g.setIndex(new THREE.BufferAttribute(m.indices, 1));
   g.computeBoundingSphere();
   return g;
@@ -74,7 +75,7 @@ export class World {
     private readonly baseUrl: string,
     private readonly physics: PhysicsWorld,
     radii: StreamingRadii = DEFAULT_RADII,
-    opts: { workers?: boolean } = {},
+    opts: { workers?: boolean; lowQuality?: boolean } = {},
   ) {
     if (manifest.schemaVersion !== WORLD_SCHEMA_VERSION) {
       throw new Error(`world schema ${manifest.schemaVersion} != runtime ${WORLD_SCHEMA_VERSION}`);
@@ -84,10 +85,10 @@ export class World {
     this.pool = opts.workers !== false && typeof Worker !== 'undefined' ? new ChunkWorkerPool() : null;
     this.stats.workers = this.pool?.size ?? 0;
     this.maxInflight = Math.max(4, (this.pool?.size ?? 1) * 3);
-    this.materials = createVoxelMaterials();
+    this.materials = createVoxelMaterials(opts.lowQuality);
   }
 
-  static async load(baseUrl: string, physics: PhysicsWorld, radii?: StreamingRadii, opts?: { workers?: boolean }): Promise<World> {
+  static async load(baseUrl: string, physics: PhysicsWorld, radii?: StreamingRadii, opts?: { workers?: boolean; lowQuality?: boolean }): Promise<World> {
     const res = await fetch(`${baseUrl}/manifest.json`);
     if (!res.ok) throw new Error(`manifest fetch failed: ${res.status}`);
     return new World((await res.json()) as WorldManifest, baseUrl, physics, radii, opts);
@@ -230,7 +231,7 @@ export class World {
       const mesh = new THREE.Mesh(toGeometry(arrays), this.materials[name]!);
       mesh.name = name;
       mesh.receiveShadow = name !== 'emissive';
-      mesh.castShadow = name === 'opaque';
+      mesh.castShadow = name === 'opaque' || name === 'foliage';
       if (name === 'water') mesh.renderOrder = 2;
       group.add(mesh);
     }

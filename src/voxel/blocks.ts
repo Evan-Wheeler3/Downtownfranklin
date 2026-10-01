@@ -12,6 +12,23 @@ export interface BlockDef {
   kind: BlockKind;
   /** Solid for the player (voxel collider). */
   collide: boolean;
+  /** Procedural surface pattern class used by the block shader (see TEX). */
+  tex: number;
+}
+
+/** Shader texture classes (src/render/voxelMaterials.ts). */
+export const TEX = { plain: 0, brick: 1, siding: 2, grass: 3, shingle: 4, paver: 5, grain: 6, leaves: 7, bark: 8 } as const;
+
+function texOf(name: string): number {
+  if (name.startsWith('brick_paver') || ['sidewalk', 'sidewalk_alt', 'curb', 'stone', 'stone_grey', 'stone_tan', 'roof_flat', 'roof_tan', 'concrete'].includes(name)) return TEX.paver;
+  if (name.startsWith('brick')) return TEX.brick;
+  if (name.startsWith('clap') || name.startsWith('wood') || name.startsWith('shutter') || name === 'bench_wood') return TEX.siding;
+  if (name.startsWith('grass') || name === 'roof_garden') return TEX.grass;
+  if (['asphalt', 'asphalt_light', 'gravel', 'dirt', 'sand', 'path', 'roof_tar'].includes(name)) return TEX.grain;
+  if (name.startsWith('roof')) return TEX.shingle;
+  if (name.startsWith('leaves') || name === 'hedge' || name.startsWith('flower_box')) return TEX.leaves;
+  if (name === 'trunk') return TEX.bark;
+  return TEX.plain;
 }
 
 export const SLAB = 0x100;
@@ -20,93 +37,98 @@ export const ID_MASK = 0xff;
 const defs: [string, number, BlockKind, boolean?][] = [
   ['air', 0x000000, 'solid', false],
   // ground
-  ['grass', 0x7fb35a, 'solid'],
-  ['grass_dark', 0x6a9e4c, 'solid'],
-  ['dirt', 0x8a6a4a, 'solid'],
-  ['stone', 0x8f8c86, 'solid'],
-  ['sand', 0xd9c79a, 'solid'],
-  ['gravel', 0x9c968c, 'solid'],
-  ['path', 0xc9b48a, 'solid'],
-  ['water', 0x4f9fc4, 'water', false],
+  ['grass', 0x86c14a, 'solid'],
+  ['grass_dark', 0x6aad3d, 'solid'],
+  ['dirt', 0x9a6b45, 'solid'],
+  ['stone', 0x9a958c, 'solid'],
+  ['sand', 0xe8d3a0, 'solid'],
+  ['gravel', 0xa8a092, 'solid'],
+  ['path', 0xd9bd8a, 'solid'],
+  ['water', 0x46b3c6, 'water', false],
   // streets
-  ['asphalt', 0x5b5e66, 'solid'],
-  ['asphalt_light', 0x585b63, 'solid'],
-  ['line_yellow', 0xe8c14a, 'solid'],
-  ['line_white', 0xe9e6dc, 'solid'],
-  ['sidewalk', 0xc8c2b4, 'solid'],
-  ['sidewalk_alt', 0xbdb6a6, 'solid'],
-  ['curb', 0xa7a196, 'solid'],
-  ['brick_paver', 0xb0705a, 'solid'],
+  ['asphalt', 0x6d6a70, 'solid'],
+  ['asphalt_light', 0x76737a, 'solid'],
+  ['line_yellow', 0xf2c64a, 'solid'],
+  ['line_white', 0xf3efe2, 'solid'],
+  ['sidewalk', 0xddd0b5, 'solid'],
+  ['sidewalk_alt', 0xd2c4a6, 'solid'],
+  ['curb', 0xbcb2a0, 'solid'],
+  ['brick_paver', 0xc27a5c, 'solid'],
   // walls
-  ['brick_red', 0xa4503c, 'solid'],
-  ['brick_dark', 0x7e3f33, 'solid'],
-  ['brick_orange', 0xbf7048, 'solid'],
-  ['brick_painted_white', 0xe8e2d4, 'solid'],
-  ['stucco_cream', 0xeadcb8, 'solid'],
-  ['stucco_peach', 0xe9b996, 'solid'],
-  ['stucco_sage', 0xb7c4a0, 'solid'],
-  ['stucco_rose', 0xdba3a0, 'solid'],
-  ['stucco_sky', 0xa9c3d6, 'solid'],
-  ['clap_white', 0xf0ede4, 'solid'],
-  ['clap_blue', 0x8fb0c8, 'solid'],
-  ['clap_yellow', 0xeed58a, 'solid'],
-  ['clap_green', 0x9cbf9a, 'solid'],
-  ['clap_grey', 0xb4b8bb, 'solid'],
-  ['stone_tan', 0xcdbb98, 'solid'],
-  ['stone_grey', 0xa9a7a1, 'solid'],
-  ['concrete', 0xb9b6ae, 'solid'],
+  ['brick_red', 0xba573c, 'solid'],
+  ['brick_dark', 0x8f4636, 'solid'],
+  ['brick_orange', 0xd07a4a, 'solid'],
+  ['brick_painted_white', 0xf3ecdc, 'solid'],
+  ['stucco_cream', 0xf5e3bd, 'solid'],
+  ['stucco_peach', 0xf4b58a, 'solid'],
+  ['stucco_sage', 0xb7d39a, 'solid'],
+  ['stucco_rose', 0xeea6a0, 'solid'],
+  ['stucco_sky', 0xa6cbe6, 'solid'],
+  ['clap_white', 0xf7f2e6, 'solid'],
+  ['clap_blue', 0x86b6dc, 'solid'],
+  ['clap_yellow', 0xf6d77c, 'solid'],
+  ['clap_green', 0x9fd09a, 'solid'],
+  ['clap_grey', 0xbfc4c6, 'solid'],
+  ['stone_tan', 0xdcc394, 'solid'],
+  ['stone_grey', 0xb4afa5, 'solid'],
+  ['concrete', 0xc6c0b4, 'solid'],
   // trims & details
-  ['trim_white', 0xf5f1e8, 'solid'],
-  ['trim_cream', 0xe9dcc0, 'solid'],
-  ['trim_dark', 0x3c3a3f, 'solid'],
-  ['trim_green', 0x3f5e4a, 'solid'],
-  ['trim_navy', 0x34445e, 'solid'],
-  ['trim_oxblood', 0x6a2e2e, 'solid'],
-  ['wood_door', 0x7a5236, 'solid'],
-  ['wood_planks', 0xa77c52, 'solid'],
-  ['glass', 0x9fc7dc, 'glass'],
-  ['glass_shop', 0xbcd8e4, 'glass'],
+  ['trim_white', 0xfbf7ee, 'solid'],
+  ['trim_cream', 0xf1e2c2, 'solid'],
+  ['trim_dark', 0x3f3a40, 'solid'],
+  ['trim_green', 0x2f6e57, 'solid'],
+  ['trim_navy', 0x2f4b7a, 'solid'],
+  ['trim_oxblood', 0x7d2f2f, 'solid'],
+  ['wood_door', 0x8a5532, 'solid'],
+  ['wood_planks', 0xb98552, 'solid'],
+  ['glass', 0x8fd0ec, 'glass'],
+  ['glass_shop', 0xb4e0ee, 'glass'],
   // roofs
-  ['roof_slate', 0x5d6470, 'solid'],
-  ['roof_red', 0xa5493b, 'solid'],
-  ['roof_green', 0x5f7f62, 'solid'],
-  ['roof_brown', 0x7b5a44, 'solid'],
-  ['roof_charcoal', 0x45474d, 'solid'],
-  ['roof_flat', 0x8d8a84, 'solid'],
-  ['roof_copper', 0x6fa596, 'solid'],
-  ['roof_tan', 0xb3a587, 'solid'],
-  ['roof_tar', 0x6c6a6a, 'solid'],
-  ['roof_terracotta', 0xb86c4e, 'solid'],
-  ['roof_garden', 0x86ad5e, 'solid'],
-  ['lamp_post', 0x2f4038, 'solid'],
-  ['shutter_green', 0x4d6b55, 'solid'],
-  ['shutter_blue', 0x4e6a8a, 'solid'],
-  ['shutter_black', 0x34363b, 'solid'],
+  ['roof_slate', 0x4f6488, 'solid'],
+  ['roof_red', 0xc8523b, 'solid'],
+  ['roof_green', 0x3f8a72, 'solid'],
+  ['roof_brown', 0x8d5a3c, 'solid'],
+  ['roof_charcoal', 0x4a4c58, 'solid'],
+  ['roof_flat', 0xa29b8e, 'solid'],
+  ['roof_copper', 0x5fb3a0, 'solid'],
+  ['roof_tan', 0xc4b08a, 'solid'],
+  ['roof_tar', 0x77727a, 'solid'],
+  ['roof_terracotta', 0xd27149, 'solid'],
+  ['roof_garden', 0x7dbf4f, 'solid'],
+  ['lamp_post', 0x2c4a3e, 'solid'],
+  ['shutter_green', 0x3f7a58, 'solid'],
+  ['shutter_blue', 0x3f6fa0, 'solid'],
+  ['shutter_black', 0x34363d, 'solid'],
   // awnings
-  ['awning_red', 0xc4473d, 'solid'],
-  ['awning_cream', 0xf1e6cf, 'solid'],
-  ['awning_green', 0x3f7d5a, 'solid'],
-  ['awning_blue', 0x3f6f9e, 'solid'],
-  ['awning_yellow', 0xe7b847, 'solid'],
-  ['awning_black', 0x2e2f33, 'solid'],
+  ['awning_red', 0xd94a3d, 'solid'],
+  ['awning_cream', 0xfaf0d8, 'solid'],
+  ['awning_green', 0x2f8a5c, 'solid'],
+  ['awning_blue', 0x3577b8, 'solid'],
+  ['awning_yellow', 0xf2b93b, 'solid'],
+  ['awning_black', 0x2f3038, 'solid'],
   // nature
-  ['trunk', 0x6b4a32, 'solid'],
-  ['leaves', 0x5f9a48, 'leaves'],
-  ['leaves_light', 0x7db45a, 'leaves'],
-  ['leaves_dark', 0x4a7f3c, 'leaves'],
-  ['leaves_autumn', 0xd08a3c, 'leaves'],
-  ['leaves_blossom', 0xeab3c4, 'leaves'],
-  ['hedge', 0x557f43, 'leaves'],
-  ['flower_red', 0xe0524a, 'plant', false],
-  ['flower_yellow', 0xf2cf4a, 'plant', false],
-  ['flower_white', 0xf6f3ea, 'plant', false],
-  ['flower_purple', 0x9b7ad0, 'plant', false],
-  ['tuft', 0x6fa64e, 'plant', false],
+  ['trunk', 0x7a4e30, 'solid'],
+  ['leaves', 0x55a93a, 'leaves'],
+  ['leaves_light', 0x82c84e, 'leaves'],
+  ['leaves_dark', 0x3f8a34, 'leaves'],
+  ['leaves_autumn', 0xe88a32, 'leaves'],
+  ['leaves_blossom', 0xf4b6cc, 'leaves'],
+  ['hedge', 0x4f9a3a, 'leaves'],
+  ['flower_box_green', 0x4f9e3c, 'leaves'],
+  ['flower_box_pink', 0xf08fb0, 'leaves'],
+  ['flower_box_red', 0xe8544a, 'leaves'],
+  ['flower_box_yellow', 0xf6cf4c, 'leaves'],
+  ['flower_box_purple', 0xb08ae6, 'leaves'],
+  ['flower_red', 0xf04a42, 'plant', false],
+  ['flower_yellow', 0xffd23f, 'plant', false],
+  ['flower_white', 0xfffaf0, 'plant', false],
+  ['flower_purple', 0xa57be0, 'plant', false],
+  ['tuft', 0x79bf43, 'plant', false],
   // street furniture
-  ['iron', 0x2f3236, 'solid'],
-  ['lamp', 0xffd890, 'emissive'],
-  ['bench_wood', 0x9a6a42, 'solid'],
-  ['planter', 0x8c7a66, 'solid'],
+  ['iron', 0x2f3438, 'solid'],
+  ['lamp', 0xffcf7a, 'emissive'],
+  ['bench_wood', 0xa86c3c, 'solid'],
+  ['planter', 0x9c7c62, 'solid'],
 ];
 
 export const BLOCKS: BlockDef[] = defs.map(([name, color, kind, collide]) => ({
@@ -114,7 +136,11 @@ export const BLOCKS: BlockDef[] = defs.map(([name, color, kind, collide]) => ({
   color,
   kind,
   collide: collide ?? kind !== 'plant',
+  tex: texOf(name),
 }));
+
+/** Texture class per block id (Float32 for direct use as a vertex attribute value). */
+export const TEX_OF: Uint8Array = Uint8Array.from(BLOCKS.map((b) => b.tex));
 
 export const B: Record<string, number> = Object.fromEntries(BLOCKS.map((b, i) => [b.name, i]));
 

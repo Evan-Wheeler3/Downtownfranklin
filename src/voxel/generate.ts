@@ -313,6 +313,8 @@ function buildStructure(vol: VoxelVolume, p: Plan, cls: Uint8Array, x0: number, 
   const flatTop = B[pick(FLAT_ROOFS, r(8))]!;
   const shutter = B[pick(SHUTTERS, r(9))]!;
   const lintels = r(10) < 0.6;
+  const flowerBoxes = r(11) < (arch === 'house' ? 0.45 : 0.55);
+  const flowerBox = B[pick(['flower_box_pink', 'flower_box_red', 'flower_box_yellow', 'flower_box_purple'], r(12))]!;
   const awning = B[pick(AWNINGS, r(4))]!;
   const hasAwning = arch === 'shop' && r(5) < 0.7;
   const flatRoof = arch !== 'house' && arch !== 'church';
@@ -380,6 +382,10 @@ function buildStructure(vol: VoxelVolume, p: Plan, cls: Uint8Array, x0: number, 
         else if (shutterCol && winRow && corner === false) v = shutter;
         else if (lintels && winCol && arch !== 'house' && arch !== 'church' && rr === fh - 1) v = trim; // lintel
         if (arch === 'house' && rel <= 1 && (coord + doorPhase) % 7 === 3 && odj !== 0) v = B.wood_door!;
+        // window boxes: a bushy, flowering slab just under upper-floor windows
+        if (flowerBoxes && winCol && rr === 0 && k > 0 && rel < H - 1 && arch !== 'church') {
+          vol.setIfEmpty(x + odi, y, z + odj, (hash2(x, z, y) < 0.5 ? flowerBox : B.flower_box_green!) | SLAB, true);
+        }
       }
       S_(x, y, z, v);
     }
@@ -511,7 +517,7 @@ function decorate(
     const j = gj + Math.floor(hash2(wx, wz, 12) * G);
     const c = at(i, j);
     if (!green(c)) continue;
-    const p = c === S.Park ? 0.75 : 0.32;
+    const p = c === S.Park ? 0.85 : 0.5;
     if (hash2(wx, wz, 13) > p) continue;
     if (!clear(i, j, 2, green)) continue;
     const y = Math.ceil(surface[j * CHUNK + i]!);

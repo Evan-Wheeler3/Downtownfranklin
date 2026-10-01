@@ -39,6 +39,7 @@ export function installDebugApi(game: Game): void {
     look(yawDeg: number, pitchDeg = 0) {
       game.player.yaw = (yawDeg * Math.PI) / 180;
       game.player.pitch = (pitchDeg * Math.PI) / 180;
+      if (game.pendingSpawn) game.pendingSpawn.yaw = game.player.yaw;
     },
     /** Scripted movement intent, e.g. {forward: 1}; null to release. */
     move(intent: Record<string, number | boolean> | null) {

@@ -26,7 +26,7 @@ export class Game {
   proj!: LocalProjection;
   readonly perf = new FrameStats();
   private spawned = false;
-  private pendingSpawn: { x: number; z: number; yaw: number } | null = null;
+  pendingSpawn: { x: number; z: number; yaw: number } | null = null;
   private last = 0;
   private labelTimer = 0;
   private running = false;
@@ -39,10 +39,11 @@ export class Game {
       forceWebGL: this.opts.forceWebGL,
       lowQuality: this.opts.lowQuality,
       post: new URLSearchParams(location.search).get('post') !== '0',
+      rays: new URLSearchParams(location.search).get('rays') !== '0',
     });
     const R = await initRapier();
     this.physics = new PhysicsWorld(R);
-    this.world = await World.load(this.opts.worldUrl, this.physics);
+    this.world = await World.load(this.opts.worldUrl, this.physics, undefined, { lowQuality: this.opts.lowQuality });
     this.proj = new LocalProjection(this.world.manifest.origin);
     this.ctx.scene.add(this.world.root);
     this.player = new PlayerController(this.physics);
@@ -74,7 +75,6 @@ export class Game {
     if (!Number.isFinite(h)) return;
     this.player.teleport(s.x, h + 0.05, s.z);
     this.player.yaw = s.yaw;
-    this.player.pitch = 0;
     this.pendingSpawn = null;
     this.spawned = true;
     this.ready = true;

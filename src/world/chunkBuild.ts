@@ -11,6 +11,7 @@ export interface MeshArrays {
   positions: Float32Array;
   normals: Float32Array;
   colors: Float32Array;
+  tex: Float32Array;
   indices: Uint32Array;
 }
 
@@ -36,6 +37,7 @@ function pack(g: GroupBuilder): MeshArrays | undefined {
     positions: new Float32Array(g.positions),
     normals: new Float32Array(g.normals),
     colors: new Float32Array(g.colors),
+    tex: new Float32Array(g.tex),
     indices: new Uint32Array(g.indices),
   };
 }
@@ -95,7 +97,7 @@ export function transferables(b: BuiltChunk): ArrayBuffer[] {
   const set = new Set<ArrayBuffer>([b.heights.buffer as ArrayBuffer, b.voxels.buffer as ArrayBuffer]);
   for (const m of Object.values(b.meshes)) {
     if (!m) continue;
-    for (const a of [m.positions, m.normals, m.colors, m.indices]) set.add(a.buffer as ArrayBuffer);
+    for (const a of [m.positions, m.normals, m.colors, m.tex, m.indices]) set.add(a.buffer as ArrayBuffer);
   }
   return [...set];
 }

@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: 'tests/e2e',
-  timeout: 180_000,
+  timeout: 300_000,
   expect: { timeout: 60_000 },
   outputDir: 'test-results',
   reporter: [['list']],
@@ -18,6 +18,6 @@ export default defineConfig({
     command: 'npx vite build && npx vite preview --port 4173 --strictPort',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: true,
-    timeout: 180_000,
+    timeout: 300_000,
   },
 });

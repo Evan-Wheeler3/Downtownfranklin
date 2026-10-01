@@ -81,3 +81,12 @@ Format: ID · date · decision · context/alternatives · consequences. Newest l
 
 ### D-024 · 2026-10-01 · Look: TSL block shader, warm light, gradient sky, bloom
 - Block material = palette colour × baked AO × per-block hash tint × soft bevel computed from world position (reads as blocks even after greedy merging). Glass/water use fresnel toward the sky colour; lamps are emissive and picked up by bloom. Neutral tone mapping, soft (0.72) PCF shadows, warm sun at 235°/38°, warm-ground hemisphere light, distance fog matched to the horizon, blocky clouds. All tunables in `LOOK` (src/render/renderer.ts).
+
+### D-025 · 2026-10-01 · "Painted film" look (cozier, saturated, textured, hazy, sunlit)
+- Product owner direction: cozier, more saturated, Ghibli-like; more texture, haze, sunlight, real-world effects.
+- Palette re-saturated and warmed (blocks.ts). Block shader adds procedural surface patterns per texture class (brick bond with mortar, lap siding, shingles, pavers, asphalt grain, grass speckle with soil sides, leaf dapples, bark) faded with distance, plus a painterly low-frequency mottle (MaterialX noise) — all in the shader so greedy meshing is unaffected.
+- Foliage is its own mesh group: wind sway in the vertex stage and warm translucency when backlit by the sun. Window boxes with flowers; denser trees.
+- Atmosphere: custom `scene.fogNode` aerial-perspective haze (height falloff, warm toward the sun, cool away), deep-blue gradient sky with layered sun glow, towering voxel cumulus with warm tops and cool undersides.
+- Light: golden sun (azimuth 210°, elevation 33°), cool sky fill + warm ground bounce (soft blue-violet shadows), ACES filmic.
+- Post (full quality only): bloom on HDR highlights, raymarched sun shafts (built lazily once the shadow map exists), saturation 1.32, warm-highlight/cool-shadow split toning, vignette, fine grain. All tunables in `LOOK`. `?rays=0` disables shafts.
+- Tuning lessons (screenshots): haze density > 0.002 and bloom threshold < 1 washed the image out; additive shafts must stay ≲ 0.2.

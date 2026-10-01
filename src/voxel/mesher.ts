@@ -3,15 +3,17 @@
  * Full cubes are greedy-merged per slice (merging only faces with identical block + AO);
  * slabs, water surfaces and plants are emitted per cell. Output is grouped by material.
  */
-import { BLOCKS, ID_MASK, isOpaqueCube, LINEAR_RGB, SLAB } from './blocks';
+import { BLOCKS, ID_MASK, isOpaqueCube, LINEAR_RGB, SLAB, TEX_OF } from './blocks';
 import type { VoxelVolume } from './volume';
 
-export type MeshGroup = 'opaque' | 'glass' | 'water' | 'emissive';
+export type MeshGroup = 'opaque' | 'foliage' | 'glass' | 'water' | 'emissive';
 
 export class GroupBuilder {
   positions: number[] = [];
   normals: number[] = [];
   colors: number[] = [];
+  /** Texture class per vertex (TEX in blocks.ts). */
+  tex: number[] = [];
   indices: number[] = [];
   get vertexCount(): number {
     return this.positions.length / 3;
@@ -42,6 +44,7 @@ const groupOf = (v: number): MeshGroup | null => {
   if (k === 'water') return 'water';
   if (k === 'emissive') return 'emissive';
   if (k === 'plant') return null;
+  if (k === 'leaves') return 'foliage';
   return 'opaque';
 };
 
@@ -62,6 +65,7 @@ function pushQuad(
   n: [number, number, number],
   rgb: [number, number, number],
   ao: [number, number, number, number],
+  tex = 0,
 ): void {
   const base = g.vertexCount;
   // Ensure CCW winding as seen from the normal side.
@@ -76,6 +80,7 @@ function pushQuad(
     g.normals.push(n[0], n[1], n[2]);
     const f = AO_CURVE[ao[i]!]!;
     g.colors.push(rgb[0] * f, rgb[1] * f, rgb[2] * f);
+    g.tex.push(tex);
   }
   // Split along the diagonal that keeps AO gradients smooth (avoids anisotropy).
   const altDiag = ao[0]! + ao[2]! < ao[1]! + ao[3]!;
@@ -101,6 +106,7 @@ export function meshVolume(vol: VoxelVolume, opts: MeshOptions = {}): VoxelMesh 
   const usePlants = opts.plants ?? true;
   const groups: Record<MeshGroup, GroupBuilder> = {
     opaque: new GroupBuilder(),
+    foliage: new GroupBuilder(),
     glass: new GroupBuilder(),
     water: new GroupBuilder(),
     emissive: new GroupBuilder(),
@@ -188,7 +194,7 @@ export function meshVolume(vol: VoxelVolume, opts: MeshOptions = {}): VoxelMesh 
               return r;
             };
             const corners = [mk(i, j), mk(i + w, j), mk(i + w, j + h), mk(i, j + h)];
-            pushQuad(groups[groupOf(id)!], corners, n, rgbOf(id), ao);
+            pushQuad(groups[groupOf(id)!], corners, n, rgbOf(id), ao, TEX_OF[id]);
             quads++;
             i += w;
           }
@@ -229,7 +235,7 @@ export function meshVolume(vol: VoxelVolume, opts: MeshOptions = {}): VoxelMesh 
         const yy = vol.oy + y + 0.5;
         const x0 = vol.ox + i, z0 = vol.oz + j;
         const grp = groupOf(id) ?? 'opaque';
-        pushQuad(groups[grp], [[x0, yy, z0], [x0 + w, yy, z0], [x0 + w, yy, z0 + h], [x0, yy, z0 + h]], [0, 1, 0], rgbOf(id), [3, 3, 3, 3]);
+        pushQuad(groups[grp], [[x0, yy, z0], [x0 + w, yy, z0], [x0 + w, yy, z0 + h], [x0, yy, z0 + h]], [0, 1, 0], rgbOf(id), [3, 3, 3, 3], TEX_OF[id]);
         quads++;
         i += w;
       }
@@ -251,7 +257,7 @@ export function meshVolume(vol: VoxelVolume, opts: MeshOptions = {}): VoxelMesh 
             if (dir === 2) return false; // top: emitted by the greedy slab pass
             if (dir === 3) return !isOpaqueCube(b);
             return !(isOpaqueCube(b) || (b & SLAB) !== 0);
-          });
+          }, TEX_OF[a & ID_MASK]);
         } else if (kind === 'water') {
           const above = vol.get(wx, wy + 1, wz);
           if (BLOCKS[above & ID_MASK]!.kind !== 'water' && !isOpaqueCube(above)) {
@@ -269,7 +275,7 @@ export function meshVolume(vol: VoxelVolume, opts: MeshOptions = {}): VoxelMesh 
 /** Axis-aligned box faces (no AO); `show(dir)` filters faces: 0 +x,1 -x,2 +y,3 -y,4 +z,5 -z. */
 function emitBox(
   g: GroupBuilder, x0: number, y0: number, z0: number, x1: number, y1: number, z1: number,
-  rgb: [number, number, number], show: (dir: number) => boolean,
+  rgb: [number, number, number], show: (dir: number) => boolean, tex = 0,
 ): number {
   const faces: [number, [number, number, number], [number, number, number][]][] = [
     [0, [1, 0, 0], [[x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [x1, y0, z1]]],
@@ -282,7 +288,7 @@ function emitBox(
   let n = 0;
   for (const [dir, normal, corners] of faces) {
     if (!show(dir)) continue;
-    pushQuad(g, corners, normal, rgb, [3, 3, 3, 3]);
+    pushQuad(g, corners, normal, rgb, [3, 3, 3, 3], tex);
     n++;
   }
   return n;

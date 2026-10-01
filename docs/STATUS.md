@@ -1,6 +1,6 @@
 # Status
 
-_Last updated: 2026-10-01 (session 2)._ Read this first, then ROADMAP.md → "Next".
+_Last updated: 2026-10-01 (session 3)._ Read this first, then ROADMAP.md → "Next".
 
 ## Direction (session 2)
 Product owner redirected the project (D-021): an aesthetically pleasing, thoughtful **RPG through a
@@ -31,6 +31,15 @@ Downtown Franklin's real street grid, footprints, heights and terrain remain the
 - Perf (SwiftShader, not a GPU benchmark): ~76 chunks resident, 85–120 draw calls, 1.16 M tris (low
   quality, aerial) / 1.7–1.9 M (full quality incl. shadow pass); worker chunk build ~200 ms warm,
   up to 1.4 s under SwiftShader CPU contention.
+
+## Session 3 — "painted film" look (D-025)
+- Cozier, saturated palette; procedural brick/siding/shingle/paver/grass/leaf/bark textures in the shader;
+  painterly mottle; swaying, backlit foliage; flower window boxes; denser trees.
+- Aerial-perspective haze fog node, deep-blue sky with sun glow, towering voxel cumulus.
+- Golden sun with cool shadow fill; post: bloom, sun shafts, saturation, split toning, vignette, grain.
+- Screenshots: `artifacts/ghibli-pair.png` (street + low aerial), `ghibli-aerial.png`.
+- Investigated a "centre seam": it is the kerb line converging to the vanishing point when standing on
+  the kerb looking down the street — real geometry, not an artifact.
 
 ## Known issues
 - First load streams for several seconds; generator + mesher need optimisation (see ROADMAP debt).
